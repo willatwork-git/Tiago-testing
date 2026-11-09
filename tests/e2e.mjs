@@ -18,10 +18,11 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let ws, id = 0; const pending = new Map();
 for (let i = 0; i < 50; i++) { try { const t = await (await fetch('http://127.0.0.1:9333/json')).json(); const pg = t.find(x => x.type === 'page'); if (pg) { ws = new WebSocket(pg.webSocketDebuggerUrl); break; } } catch {} await sleep(200); }
 await new Promise((r) => ws.addEventListener('open', r));
-ws.addEventListener('message', (m) => { const d = JSON.parse(m.data); if (d.id && pending.has(d.id)) { pending.get(d.id)(d); pending.delete(d.id); } });
+const pageErrors = [];
+ws.addEventListener('message', (m) => { const d = JSON.parse(m.data); if (d.method === 'Runtime.exceptionThrown') { const e = d.params.exceptionDetails; pageErrors.push(`${e.exception?.description ?? e.text} @${e.url?.split('/').pop()}:${e.lineNumber + 1}`); } if (d.id && pending.has(d.id)) { pending.get(d.id)(d); pending.delete(d.id); } });
 const send = (method, params = {}) => new Promise((r) => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
 const ev = async (expr) => { const r = await send('Runtime.evaluate', { expression: expr, returnByValue: true, awaitPromise: true }); if (r.result.exceptionDetails) throw new Error(JSON.stringify(r.result.exceptionDetails)); return r.result.result.value; };
-const KEYS = { Enter: [13, '\r'], Space: [32, ' '], Tab: [9, ''], ArrowLeft: [37], ArrowRight: [39], ArrowUp: [38], ArrowDown: [40], KeyP: [80, 'p'], KeyQ: [81, 'q'] };
+const KEYS = { Enter: [13, '\r'], Space: [32, ' '], Tab: [9, ''], ArrowLeft: [37], ArrowRight: [39], ArrowUp: [38], ArrowDown: [40], KeyP: [80, 'p'], KeyQ: [81, 'q'], KeyM: [77, 'm'] };
 async function key(code, shift = false) {
   const [kc, text] = KEYS[code]; const k = code === 'Space' ? ' ' : code.startsWith('Key') ? code.slice(3).toLowerCase() : code;
   await send('Input.dispatchKeyEvent', { type: text ? 'keyDown' : 'rawKeyDown', code, key: k, windowsVirtualKeyCode: kc, text, modifiers: shift ? 8 : 0 });
@@ -31,6 +32,8 @@ async function key(code, shift = false) {
 async function viewport(w, h) { await send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: false }); }
 async function shot(name) { const r = await send('Page.captureScreenshot'); (await import('node:fs')).writeFileSync(`${OUT}/${name}.png`, Buffer.from(r.result.data, 'base64')); }
 let fails = 0; const check = (ok, msg) => { console.log(ok ? 'PASS' : 'FAIL', msg); if (!ok) fails++; };
+/** Poll a page expression until truthy (or time out) — frames don't tick on a fixed schedule headless. */
+const waitFor = async (expr, ms = 1000) => { const end = Date.now() + ms; while (Date.now() < end) { if (await ev(expr)) return true; await sleep(20); } return false; };
 const load = async (q = '?debug') => { await send('Page.navigate', { url: URL + q }); await sleep(800); };
 
 await send('Page.enable'); await send('Runtime.enable');
@@ -84,6 +87,24 @@ await key('ArrowRight');
 check(await ev('game.state') === 'playing', 'first valid direction starts play');
 check(await ev('game.player.dir.x') === 1, '...moving in the requested direction');
 
+// ---- M6: dash, cooldown, effects, mute
+const x0 = await ev('game.player.x');
+await key('Space');
+check(await ev('game.player.dashTime') > 0 && await ev('game.player.dashCooldown') > 3.5, 'Space starts a dash and its cooldown');
+await shot('dash');
+await sleep(300);
+const moved = (await ev('game.player.x')) - x0;
+check(moved > 3.2, `dash covers ground: ${moved.toFixed(2)} tiles in ~0.3 s (plain speed ≈ 2.3)`);
+check(await ev('game.fx.particles.length') > 0, 'dash leaves particles / afterimages');
+const cd = await ev('game.player.dashCooldown');
+await key('Space');
+check(await ev('game.player.dashTime') === 0 && await ev('game.player.dashCooldown') <= cd, 'Space during cooldown does nothing');
+await key('KeyM');
+check(await ev('game.muted') === true && await ev('localStorage.getItem("neonChomp.muted")') === 'true', 'M mutes and saves it');
+check(await ev('game.toast && game.toast.text') === 'SOUND OFF', 'mute shows a SOUND OFF notice');
+await key('KeyM');
+check(await ev('game.muted') === false, 'M again unmutes');
+
 // ---- 3. Tunnel seam collision (both directions, normal + frightened)
 async function seam(px, pdir, gx, gdir, frightened) {
   return ev(`(() => {
@@ -97,16 +118,12 @@ async function seam(px, pdir, gx, gdir, frightened) {
   })()`);
 }
 const R = '{x:1,y:0}', L = '{x:-1,y:0}';
-let pos = await seam([20, 0.85], R, [0, 0.1], R, false); await sleep(50);
-check(await ev('game.state') === 'dying', `seam hit, player right edge (${pos.map(v => v.toFixed(2))}) → dying`);
+let pos = await seam([20, 0.85], R, [0, 0.1], R, false);
+check(await waitFor('game.state === "dying"', 300), `seam hit, player right edge (${pos.map(v => v.toFixed(2))}) → dying`);
 await ev('game.state = "playing"');
 await key('ArrowLeft'); // the held direction is what the game reads each step
 pos = await seam([0, 0.3], L, [20, 0.4], R, true);
-console.log('  just after setup:', await ev('JSON.stringify([game.state, game.player.x, game.glitches[0].x, game.glitches[0].state, game.glitches[0].frightened])'));
-await sleep(50);
-console.log('  50ms later:', await ev('JSON.stringify([game.state, game.player.x, game.glitches[0].x, game.glitches[0].state, game.glitches[0].frightened, game.score])'));
-const st = await ev('[game.glitches[0].state, game.popups.length]');
-check(st[0] === 'eaten' && st[1] >= 1, `seam catch, player left edge (${pos.map(v => v.toFixed(2))}) → Glitch eaten + popup`);
+check(await waitFor('game.glitches[0].state === "eaten" && game.popups.length >= 1', 300), `seam catch, player left edge (${pos.map(v => v.toFixed(2))}) → Glitch eaten + popup`);
 await shot('seam');
 
 // ---- 4. Overcharge bar visible in a screenshot
@@ -134,6 +151,7 @@ check(await ev('game.state') === 'ready' && await ev('game.lives') === 3, 'Enter
 await ev('window.dispatchEvent(new Event("blur"))'); await key('KeyQ');
 check(await ev('game.state') === 'title' && await ev('document.activeElement.id') === 'play', 'Q from pause → menu, Play focused');
 
+check(pageErrors.length === 0, `no uncaught page errors${pageErrors.length ? ': ' + [...new Set(pageErrors)].join(' | ') : ''}`);
 console.log(fails ? `${fails} FAILED` : 'ALL PASS', `(screenshots in ${OUT})`);
 process.exitCode = fails ? 1 : 0;
 ws.close(); chrome.kill();

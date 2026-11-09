@@ -6,6 +6,8 @@ export class Player extends Mover {
     super(spawn.x, spawn.y, DIRS.left);
     this.want = DIRS.left; // buffered direction: taken at the first tile where it's possible
     this.mouth = 0; // chomp animation phase
+    this.dashTime = 0; // > 0 while dashing
+    this.dashCooldown = 0; // > 0 while recharging
   }
 
   update(dt, maze, speed, onTile) {

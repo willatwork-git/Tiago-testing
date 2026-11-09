@@ -22,6 +22,8 @@ Then open **http://localhost:8000** (or the address `npx serve` prints).
 | Key | Action |
 |---|---|
 | Arrows / WASD | Move. Press a turn early and it'll take it at the next junction |
+| Space | Dash: a quick burst of speed. Recharges in 4 s (the ring around you) |
+| M | Sound on/off |
 | P or Esc | Pause / resume |
 | Q | Quit to menu (while paused, or on game over) |
 | Enter | Play. On game over: retry |
@@ -47,10 +49,11 @@ Every so often they all break off and head for their corners. That's your moment
 ## Status
 
 Playable. Done: maze, player, all four Glitches, power-ups with an Overcharge meter, lives, levels,
-high scores, retry, and a keyboard-friendly title menu with colour picker and difficulty.
+high scores, retry, a keyboard-friendly title menu with colour picker and difficulty, **dash**,
+sound effects (with mute), particles and screen shake.
 
-Coming next: **dash** (Space), **combo multiplier**, particles, screen shake and sound. See
-[TODO.md](TODO.md) for the roadmap and the ideas list.
+Coming next: playtest and tuning, then maybe a **combo multiplier**. See [TODO.md](TODO.md) for
+the roadmap and the ideas list.
 
 ## Tweaking it
 
@@ -93,6 +96,8 @@ src/
   glitches.js   enemy behaviour
   render.js     all canvas drawing
   ui.js         title menu, colour picker
+  audio.js      synthesised sound effects
+  fx.js         particles and screen shake
   input.js      keyboard
   storage.js    saved settings and high scores
 tests/

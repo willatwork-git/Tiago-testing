@@ -60,10 +60,11 @@ Design changes:
 ### M6 Modern twists + juice
 *Order changed after review: dash before combo. A combo rewards unbroken pellet runs, which may
 fight the evasive play dash is for, so see if dash is fun on its own first.*
-- [ ] Dash (Space, cooldown ring). Decide its wall, pellet and Glitch rules first
-- [ ] Web Audio blips: power-up, Overcharge ending, eat Glitch, death, level clear — **plus a mute toggle**
-- [ ] Particles, screen shake *(score pop-ups done in M5b)*
-- [ ] Combo multiplier + HUD readout *(only if it doesn't fight dash)*
+- [x] Dash (Space, cooldown ring). Rules: pure speed ×2.2 for 0.25 s (~4 tiles), no invulnerability,
+  turns and stops like normal movement, eats pellets, only while moving, 4 s cooldown
+- [x] Web Audio blips: pellet, power-up, Overcharge ending, eat Glitch, death, level clear, dash, dash ready — **plus mute** (M key, menu toggle, saved)
+- [x] Particles, screen shake, dash afterimages *(score pop-ups done in M5b)*. OS "reduce motion" turns shake off and thins particles
+- [ ] Combo multiplier + HUD readout — **parked until dash has been playtested** (does dash feel good on its own? would a combo push players to stop dodging?)
 
 ### M7 Progression + wrap-up
 - [x] Lives (3), level speed-up curve, shorter Overcharge per level *(first pass; tune in playtest)*

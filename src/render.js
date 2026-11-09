@@ -124,7 +124,8 @@ export class Renderer {
     this.drawHud(game);
 
     c.save();
-    c.translate(this.ox, this.oy);
+    const shake = game.fx.shake * ts;
+    c.translate(this.ox + (Math.random() - 0.5) * 2 * shake, this.oy + (Math.random() - 0.5) * 2 * shake);
 
     // Level clear: the maze flashes.
     const flashing = game.state === 'levelClear' && Math.floor(game.stateTime * 6) % 2 === 1;
@@ -144,7 +145,9 @@ export class Renderer {
     if (showGlitches) {
       for (const gl of game.glitches) this.drawGlitch(gl, game);
     }
+    this.drawParticles(game, 'ghost');
     if (!over) this.drawPlayer(game);
+    this.drawParticles(game, 'spark');
     this.drawPopups(game);
     c.restore();
 
@@ -214,7 +217,41 @@ export class Renderer {
     const outline = game.frightTime > 0 && !(overchargeWarning(game) && Math.floor(game.time * 8) % 2 === 0);
     for (const x of wrapCopies(p.x, game.maze.cols)) {
       this.chomper((x + 0.5) * ts, (p.y + 0.5) * ts, ts * 0.42, p.dir, mouth, game.colours, alpha, outline);
+      if (p.dashCooldown > 0 && game.state !== 'dying') this.dashRing((x + 0.5) * ts, (p.y + 0.5) * ts, p, game.colours.glow);
     }
+  }
+
+  /** Dash cooldown: a thin ring that fills clockwise as dash recharges. */
+  dashRing(px, py, p, colour) {
+    const c = this.ctx, r = this.ts * 0.62;
+    const filled = 1 - p.dashCooldown / CONFIG.dash.cooldown;
+    c.save();
+    c.lineWidth = Math.max(1.5, this.ts * 0.07);
+    c.strokeStyle = 'rgba(243, 232, 255, 0.15)';
+    c.beginPath();
+    c.arc(px, py, r, 0, TAU);
+    c.stroke();
+    c.strokeStyle = colour;
+    c.globalAlpha = 0.75;
+    c.beginPath();
+    c.arc(px, py, r, -Math.PI / 2, -Math.PI / 2 + filled * TAU);
+    c.stroke();
+    c.restore();
+  }
+
+  drawParticles(game, kind) {
+    const c = this.ctx, ts = this.ts;
+    c.save();
+    for (const q of game.fx.particles) {
+      if (q.kind !== kind) continue;
+      const t = q.life / q.max;
+      c.globalAlpha = kind === 'ghost' ? t * 0.35 : t;
+      c.fillStyle = q.colour;
+      c.beginPath();
+      c.arc((q.x + 0.5) * ts, (q.y + 0.5) * ts, q.size * ts * (kind === 'ghost' ? 1 : 0.5 + t * 0.5), 0, TAU);
+      c.fill();
+    }
+    c.restore();
   }
 
   /** The player character, at pixel coordinates. */
@@ -357,6 +394,8 @@ export class Renderer {
     const cx = ox + bw / 2;
     const midY = oy + (game.maze.spawn.door.y + 4.5) * ts; // the corridor below the house
 
+    if (game.toast) this.pill(game.toast.text, cx, oy + ts * 1.5, ts * 0.5);
+
     if (game.state === 'ready') {
       this.text('READY!', cx, midY, { size: ts * 0.9, colour: PALETTE.ready, glow: ts * 0.5 });
       if (game.stateTime >= CONFIG.readyTime) {
@@ -375,6 +414,7 @@ export class Renderer {
       c.fillRect(0, 0, this.w, this.h);
       this.text('PAUSED', cx, oy + bh / 2, { size: ts * 1.2, glow: ts * 0.6 });
       this.text('P  RESUME     Q  QUIT TO MENU', cx, oy + bh / 2 + ts * 1.3, { size: ts * 0.55, colour: PALETTE.dim });
+      this.text(`M  SOUND ${game.muted ? 'OFF' : 'ON'}`, cx, oy + bh / 2 + ts * 2.1, { size: ts * 0.55, colour: PALETTE.dim });
     }
   }
 

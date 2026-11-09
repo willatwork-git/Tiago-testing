@@ -63,6 +63,30 @@ home and respawn.
 - Guard: warn (don't block) if the body colour is close to a Glitch, frightened blue, the walls or
   the white flash, or is too dark to see.
 
+## Dash
+
+Space gives a burst of ×2.2 speed for 0.25 s, about 4 tiles at level 1. It's an escape or a
+route commitment, not a shield:
+
+- **No invulnerability.** Dashing into a Glitch kills you.
+- It follows normal movement rules: it takes buffered turns, stops at walls and eats pellets on
+  the way.
+- It only fires while you're moving, so a dash into a wall can't waste the cooldown.
+- The 4 s cooldown is drawn as a ring around the player that fills clockwise. There's a blip and
+  a sparkle when it's ready.
+
+Tunables: `CONFIG.dash`.
+
+## Sound and effects
+
+- **Sound:** synthesised Web Audio, no files. Each sound marks an event: pellet, power cell,
+  Overcharge ending, Glitch caught, death, level clear, dash, dash ready. M toggles mute
+  (also in the menu); the setting is saved.
+- **Effects:** particle bursts and screen shake, plus dash afterimages. If the OS "reduce motion"
+  setting is on, there's no shake and fewer particles.
+- **How it's wired:** game logic emits events (`emit()` in `main.js`); `audio.js` and `fx.js`
+  react to them. Game rules never call audio or drawing directly.
+
 ## Difficulty
 
 Chosen on the title menu. It's remembered between visits, and each difficulty keeps its own high score.
@@ -81,7 +105,8 @@ All values are in `DIFFICULTY` in `src/config.js`.
 | Input | Action |
 |---|---|
 | Arrows / WASD | Move |
-| Space | Dash |
+| Space | Dash (while moving; 4 s cooldown shown as a ring) |
+| M | Sound on/off |
 | P / Esc | Pause / resume |
 | Q | Quit to menu (while paused, or on game over) |
 | Enter | Play; on game over, retry with the same settings |

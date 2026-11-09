@@ -12,13 +12,14 @@
   <!-- Title-screen menu. The canvas draws the logo and parade above it. -->
   <div id="menu" class="menu" hidden>
     <button type="button" class="play" id="play">Play <kbd>Enter</kbd></button>
-    <p class="hint">Arrows / WASD move · P pause · Q quit to menu</p>
+    <p class="hint">Arrows / WASD move · Space dash · P pause · M sound</p>
 
     <section>
       <h2 id="difficulty-label">Difficulty</h2>
       <div class="segmented" role="radiogroup" aria-labelledby="difficulty-label" id="difficulty"></div>
       <p class="hint" id="difficulty-hint"></p>
     </section>
+    <label class="toggle sound"><input type="checkbox" id="sound"> Sound effects</label>
     <p class="hint" id="menu-high" hidden></p>
 
     <details id="customise">

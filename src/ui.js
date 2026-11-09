@@ -50,7 +50,7 @@ function radio(name, value, label) {
   return input;
 }
 
-export function createMenu({ colours, difficulty, onColours, onDifficulty, onPlay }) {
+export function createMenu({ colours, difficulty, muted, onColours, onDifficulty, onMuted, onPlay }) {
   const root = $('menu');
   const play = $('play');
   const match = $('glow-match');
@@ -162,6 +162,10 @@ export function createMenu({ colours, difficulty, onColours, onDifficulty, onPla
     drawChomper(c, size / 2, size / 2, size * 0.3, DIRS.right, 0.2, colours);
   }
 
+  const sound = $('sound');
+  sound.checked = !muted;
+  sound.addEventListener('change', () => onMuted(!sound.checked));
+
   play.addEventListener('click', onPlay);
 
   renderDifficulty();
@@ -174,6 +178,7 @@ export function createMenu({ colours, difficulty, onColours, onDifficulty, onPla
 
   return {
     setHigh,
+    setMuted(value) { sound.checked = !value; },
     show(highScore) {
       setHigh(highScore);
       root.hidden = false;

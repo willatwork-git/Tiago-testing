@@ -28,3 +28,7 @@ Durable decisions, with the reason. Newest at the bottom.
 | 2026-11-09 | Game input ignores keys aimed at focused form controls (`input.js` CONTROLS) | Menu radios, checkboxes and buttons keep their native keyboard behaviour |
 | 2026-11-09 | Tests live in `tests/` (`sim.mjs`, `e2e.mjs`): Node only, no packages; e2e drives Chrome over CDP | Keeps the no-dependency rule while still testing real keyboard and layout |
 | 2026-11-09 | `?debug` exposes `window.game` | The e2e tests need to see and set state |
+| 2026-11-09 | Dash = pure speed (×2.2, 0.25 s, 4 s cooldown), no invulnerability, only while moving | An escape tool that still demands judgement; it can't be wasted into a wall |
+| 2026-11-09 | Game logic emits events; audio and fx subscribe | Rules stay testable headless; sound and effects can change freely |
+| 2026-11-09 | Combo parked until dash is playtested | The review's concern: a combo could punish evasive play |
+| 2026-11-09 | Respect OS "reduce motion": no shake, fewer particles | Cheap accessibility win |

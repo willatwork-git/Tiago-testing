@@ -2,6 +2,23 @@
 
 Newest at the top.
 
+## 2026-11-09 — M6: dash, sound, effects
+
+- Committed M5/M5b as `3fd49fe`.
+- **Dash** (Space): ×2.2 speed for 0.25 s, 4 s cooldown ring, afterimage trail, a blip when
+  ready. Only fires while moving; no invulnerability.
+- **Sound** (`src/audio.js`): synthesised Web Audio for pellet, power cell, Overcharge ending,
+  Glitch caught, death, level clear, dash and dash ready. **Mute** with M or the menu toggle;
+  saved. A "SOUND ON/OFF" notice shows in game; the pause screen shows the M key.
+- **Effects** (`src/fx.js`): particle bursts and screen shake on power, catch and death.
+  "Reduce motion" is respected. Effects and pop-ups freeze while paused.
+- **Wiring:** game logic `emit()`s events; audio and fx react.
+- **Combo:** parked until dash is playtested.
+- **Tests:** e2e now covers dash distance, cooldown, particles, mute and saving, and fails on
+  any uncaught page error. A seam check was flaky (a fixed 50 ms sleep vs. headless frame
+  timing); it now polls. 34 checks pass, three runs in a row; the simulation passes.
+- **Not verified:** what the sounds actually sound like (the tests can't hear), and how dash feels.
+
 ## 2026-11-09 — M5b review fixes
 
 - **Menu keyboard:** game input now ignores keys aimed at focused form controls. Difficulty and

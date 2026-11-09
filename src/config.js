@@ -32,6 +32,10 @@ export const CONFIG = {
   popupTime: 0.9, // score pop-ups float this long
 
   score: { pellet: 10, power: 50, glitch: 200 },
+
+  // Dash: a short burst of speed. Pure speed, no invulnerability; it still turns
+  // at junctions, stops at walls and eats pellets on the way.
+  dash: { mult: 2.2, time: 0.25, cooldown: 4 },
 };
 
 // Difficulty modifiers, applied on top of the level curve above.

@@ -12,14 +12,18 @@ import { Renderer } from './render.js';
 import { createInput } from './input.js';
 import { CONFIG, DIFFICULTY } from './config.js';
 import { createMenu } from './ui.js';
+import { createAudio } from './audio.js';
+import { createFx } from './fx.js';
 import {
   loadHighScore, saveHighScore, loadColours, saveColours, loadDifficulty, saveDifficulty,
+  loadMuted, saveMuted,
 } from './storage.js';
 
 const STEP = 1 / 60; // fixed update rate, independent of display refresh
 
 const input = createInput();
 const renderer = new Renderer(document.getElementById('game'));
+const audio = createAudio(loadMuted());
 
 const difficulty = loadDifficulty(Object.keys(DIFFICULTY));
 
@@ -46,11 +50,30 @@ const game = {
   lifeTime: 0,
   pausedFrom: 'playing',
   popups: [], // { x, y, text, age } — floating score numbers, in tile units
+  events: [], // things that happened this step, for sound and effects
+  muted: audio.muted,
+  toast: null, // { text, age } — brief centre-screen notice, e.g. "SOUND OFF"
+  fx: createFx(),
 };
+
+/** Record something that happened, for audio and effects to react to. */
+function emit(type, data = {}) {
+  game.events.push({ type, ...data });
+}
+
+function setMuted(muted) {
+  game.muted = muted;
+  if (game.state !== 'title') game.toast = { text: muted ? 'SOUND OFF' : 'SOUND ON', age: 0 };
+  audio.setMuted(muted);
+  saveMuted(muted);
+  menu.setMuted(muted);
+}
 
 const menu = createMenu({
   colours: game.colours,
   difficulty: game.difficulty,
+  muted: audio.muted,
+  onMuted: setMuted,
   onColours(colours, save) {
     game.colours = colours;
     if (save) saveColours(colours);
@@ -104,6 +127,7 @@ function resetActors() {
   game.eatChain = 0;
   game.lifeTime = 0;
   game.popups = [];
+  game.fx.clear();
   input.clearDir();
 }
 
@@ -114,9 +138,13 @@ function addScore(points) {
 
 function onPlayerTile(x, y) {
   const eaten = game.maze.eat(x, y);
-  if (eaten === '.') addScore(CONFIG.score.pellet);
+  if (eaten === '.') {
+    addScore(CONFIG.score.pellet);
+    emit('pellet', { x, y });
+  }
   if (eaten === 'o') {
     addScore(CONFIG.score.power);
+    emit('power', { x, y });
     game.frightTime = CONFIG.frightTime(game.level) * game.diff.frightScale;
     game.frightTotal = game.frightTime;
     game.eatChain = 0;
@@ -124,6 +152,7 @@ function onPlayerTile(x, y) {
   }
   if (eaten && game.maze.pellets === 0) {
     saveHighScore(game.difficulty, game.high);
+    emit('levelClear');
     setState('levelClear');
   }
 }
@@ -132,7 +161,10 @@ function updateModes(dt) {
   if (game.frightTime > 0) {
     // The scatter/chase clock stops while the Glitches are frightened.
     game.frightTime -= dt;
-    if (game.frightTime <= 0) for (const gl of game.glitches) gl.frightened = false;
+    if (game.frightTime <= 0) {
+      for (const gl of game.glitches) gl.frightened = false;
+      emit('frightEnd');
+    }
     return;
   }
   game.modeTime += dt;
@@ -163,11 +195,28 @@ function checkCollisions() {
       addScore(points);
       game.eatChain++;
       game.popups.push({ x: gl.x, y: gl.y, text: String(points), age: 0 });
+      emit('eatGlitch', { x: gl.x, y: gl.y, colour: gl.def.colour });
     } else {
       game.lives--;
+      emit('death', { x: p.x, y: p.y });
       setState('dying');
       return;
     }
+  }
+}
+
+function updateDash(dt) {
+  const p = game.player;
+  const wasCooling = p.dashCooldown > 0;
+  p.dashTime = Math.max(0, p.dashTime - dt);
+  p.dashCooldown = Math.max(0, p.dashCooldown - dt);
+  if (wasCooling && p.dashCooldown === 0) emit('dashReady', { x: p.x, y: p.y });
+
+  // Only while moving: a dash into a wall would just waste the cooldown.
+  if (input.take('Space') && p.dashCooldown === 0 && p.moving) {
+    p.dashTime = CONFIG.dash.time;
+    p.dashCooldown = CONFIG.dash.cooldown;
+    emit('dash', { x: p.x, y: p.y });
   }
 }
 
@@ -176,7 +225,9 @@ function updatePlaying(dt) {
   if (input.dir) game.player.want = input.dir;
 
   updateModes(dt);
-  game.player.update(dt, game.maze, CONFIG.playerSpeed(game.level), onPlayerTile);
+  updateDash(dt);
+  const dashing = game.player.dashTime > 0 ? CONFIG.dash.mult : 1;
+  game.player.update(dt, game.maze, CONFIG.playerSpeed(game.level) * dashing, onPlayerTile);
   if (game.state !== 'playing') return; // level cleared
   for (const gl of game.glitches) gl.update(dt, game);
   checkCollisions();
@@ -203,14 +254,13 @@ function update(dt) {
   game.time += dt;
   game.stateTime += dt;
 
-  for (const pop of game.popups) pop.age += dt;
-  game.popups = game.popups.filter((pop) => pop.age < CONFIG.popupTime);
 
   if (input.take('KeyP') || input.take('Escape')) {
     if (game.state === 'paused') setState(game.pausedFrom);
     else pause();
   }
   if (input.take('KeyQ') && (game.state === 'paused' || game.state === 'gameOver')) quitToMenu();
+  if (input.take('KeyM')) setMuted(!audio.muted);
 
   switch (game.state) {
     case 'title':
@@ -242,6 +292,18 @@ function update(dt) {
     case 'gameOver':
       if (game.stateTime > 1 && input.take('Enter')) newGame(); // retry, same settings
       break;
+  }
+
+  for (const ev of game.events) {
+    audio.play(ev);
+    game.fx.handle(ev, game);
+  }
+  game.events = [];
+  if (game.state !== 'paused') {
+    game.fx.update(dt, game);
+    for (const pop of game.popups) pop.age += dt;
+    if (game.toast && (game.toast.age += dt) > 1.2) game.toast = null;
+    game.popups = game.popups.filter((pop) => pop.age < CONFIG.popupTime);
   }
 
   input.flush();

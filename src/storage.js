@@ -42,6 +42,14 @@ export function saveDifficulty(difficulty) {
   write('difficulty', difficulty);
 }
 
+export function loadMuted() {
+  return read('muted', false) === true;
+}
+
+export function saveMuted(muted) {
+  write('muted', muted);
+}
+
 export function loadColours() {
   const v = read('colours', null) ?? {};
   return {
