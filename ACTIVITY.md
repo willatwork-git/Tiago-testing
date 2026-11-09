@@ -2,6 +2,30 @@
 
 Newest at the top.
 
+## 2026-11-09 — Borough Brawl: specials, New York streets, Razorfin
+
+- **Special moves:**
+  - running attack: double-tap →→ or Shift, then attack. Shark Rush / Star Dash
+  - ground special = a throw: Fin Blade, which cuts through a line / Star Throw
+  - air special = a dive: Depth Charge, with a shockwave on landing / Comet Dive
+- **New York:** the brawler's look moved from neon space to pixel-art Manhattan at dusk:
+  - a skyline, then brick and brownstone fronts with fire escapes, water towers, shop signs,
+    awnings and graffiti
+  - a sidewalk with lamps, hydrants and trash cans
+  - the road as the walk plane: lane lines, crosswalks, manhole steam
+  - enemies are a street gang (Punks, Bruisers)
+  - fighters sit on a hardened pixel layer; the HUD is arcade style
+  - renamed **Borough Brawl**
+- **Razorfin:** the kids' shark-warrior concept is the lead hero, translated into the rig:
+  - shark head with teeth and fin, the biggest build, short legs
+  - silver armour with gold trim, a pauldron, the green tabard, gold boots, a sword
+  Nova is his partner; Titan is retired until hero select.
+- **Tests:** the bot now uses every move type. The e2e covers run, throw, dive and shockwave,
+  Nova's star and dive. Sim and e2e both pass (twice).
+- **Test lessons:** one buffered press per swing means mashing has to follow the sword's slower
+  tempo. A dive from jump height is over in about 0.08 s.
+- **Not verified by hand:** feel, and whether the kids think Razorfin looks right.
+
 ## 2026-11-09 — Neon Arcade: home screen + Nebula Knockout prototype
 
 - **Docs first:**

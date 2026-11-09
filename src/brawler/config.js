@@ -1,11 +1,11 @@
-// Every tunable number for Nebula Knockout. Units: pixels in the 480 × 270 world,
+// Every tunable number for Borough Brawl. Units: pixels in the 480 × 270 world,
 // seconds, pixels per second.
 
 export const W = 480;
 export const H = 270;
 
-// The walkable floor band, as depth (z) values. Screen y = z − h.
-export const FLOOR = { top: 172, bottom: 258 };
+// The walkable road, as depth (z) values. Screen y = z − h. The sidewalk sits just above it.
+export const FLOOR = { top: 178, bottom: 262 };
 
 export const CONFIG = {
   gravity: 900,

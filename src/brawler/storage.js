@@ -1,8 +1,8 @@
-// Nebula Knockout's saved best score and mute setting.
+// Borough Brawl's saved best score and mute setting.
 
 import { createStore } from '../shared/store.js';
 
-const { read, write } = createStore('nebulaKnockout.');
+const { read, write } = createStore('boroughBrawl.'); // (was nebulaKnockout. — prototype scores don't carry over)
 
 export function loadBest() {
   const v = read('best', 0);

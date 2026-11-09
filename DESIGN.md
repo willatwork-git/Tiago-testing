@@ -1,14 +1,14 @@
 # Neon Arcade — Design
 
-*Working title. A small browser arcade of original neon games that share one look and one
-toolkit. v0.1, 2026-11-09.*
+*Working title. A small browser arcade of original games that share one toolkit, each with
+its own look. v0.2, 2026-11-09.*
 
 ## Games
 
 | Game | Genre | Status | Design doc |
 |---|---|---|---|
 | **Neon Chomp** | Maze-chase | v1 built; needs playtest + tuning | [DESIGN-CHOMP.md](DESIGN-CHOMP.md) |
-| **Nebula Knockout** | Side-scrolling tag-team beat 'em up | Prototype (B1) | [DESIGN-BRAWLER.md](DESIGN-BRAWLER.md) |
+| **Borough Brawl** | Side-scrolling tag-team street brawler (New York) | Prototype (B1 + B1.5) | [DESIGN-BRAWLER.md](DESIGN-BRAWLER.md) |
 
 Both names are working titles.
 
@@ -16,13 +16,15 @@ Both names are working titles.
 
 1. **Feel first.** Controls must be responsive and every hit or catch must read clearly before
    anything gets prettier.
-2. **Retro look, modern feel.** Chunky pixels and neon on top. Underneath: input buffering,
+2. **Retro look, modern feel.** Arcade-era visuals on top. Underneath: input buffering,
    hitstop, particles, enemies that signal their attacks, quick restarts.
 3. **Original.** Genres and mechanics are borrowed openly. Characters, names, art, levels and
    music are always our own. No Pac-Man, Marvel or TMNT characters or looks.
-4. **No dependencies, no assets.** Vanilla JS, Canvas 2D, Web Audio. Art is drawn in code;
+4. **Each game has its own look.** Neon Chomp is glowing neon vectors; Borough Brawl is pixel-art
+   New York at dusk. They share code, not a style.
+5. **No dependencies, no assets.** Vanilla JS, Canvas 2D, Web Audio. Art is drawn in code;
    sound is synthesised.
-5. **Small and finished** beats big and half-built.
+6. **Small and finished** beats big and half-built.
 
 ## Structure
 
@@ -30,23 +32,24 @@ Both names are working titles.
 index.html            arcade home screen: pick a game
 style.css             shared styles (home, menus)
 chomp/index.html      Neon Chomp page
-brawler/index.html    Nebula Knockout page
+brawler/index.html    Borough Brawl page
 src/
-  shared/             code used by more than one game (sound synth)
+  shared/             code used by more than one game (sound synth, saved settings)
   chomp/              Neon Chomp modules
-  brawler/            Nebula Knockout modules
+  brawler/            Borough Brawl modules
 tests/
   sim.mjs             Neon Chomp logic, headless
   e2e.mjs             Neon Chomp in real Chrome
-  brawler-sim.mjs     Nebula Knockout logic, headless (a bot plays the stage)
-  brawler-e2e.mjs     Nebula Knockout + home screen in real Chrome
+  brawler-sim.mjs     Borough Brawl logic, headless (a bot plays the stage)
+  brawler-e2e.mjs     Borough Brawl + home screen in real Chrome
+  cdp.mjs             tiny Chrome DevTools driver used by both e2e files
 ```
 
 Each game is its own page. Moving between games is a normal link, so each game starts clean,
 keeps its own state, and a bug in one can't break the other.
 
 **Rule of two:** code moves into `src/shared/` only when both games actually use it. Today that's
-the sound synth (tones, noise, arpeggios). Each game keeps its own sound list, input, effects and
+the sound synth (tones, noise, arpeggios) and the saved-settings wrapper. Each game keeps its own sound list, input, effects and
 rendering, because they work in different units (tiles vs pixels) and have different needs.
 
 ## Platform

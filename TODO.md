@@ -88,7 +88,7 @@ fight the evasive play dash is for, so see if dash is fun on its own first.*
   - wall glow drawing the eye ahead of the actors on a full board
   - single remaining pellets that are hard to spot
 
-## Nebula Knockout — brawler
+## Borough Brawl — brawler
 
 ### B1 Prototype
 - [x] 480 × 270 world, whole-step pixel scaling, full-resolution HUD
@@ -103,6 +103,16 @@ fight the evasive play dash is for, so see if dash is fun on its own first.*
 - [x] Sounds (shared synth)
 - [x] Tests: a headless bot clears the stage; e2e covers controls and states
 
+### B1.5 Specials, New York, Razorfin *(2026-11-09)*
+- [x] Running attack: double-tap →→ (or Shift) + attack. Shark Rush / Star Dash
+- [x] Ground special = thrown projectile: Fin Blade (pierces) / Star Throw (fast, short cooldown)
+- [x] Air special = dive: Depth Charge (landing shockwave) / Comet Dive
+- [x] Setting moved to pixel-art New York at dusk: brick, fire escapes, shops, graffiti, sidewalk, road with steam
+- [x] Gang enemies: Punks + Bruisers (the Gutter Kings)
+- [x] Razorfin from the kids' concept art as the lead hero; Nova is his partner; Titan retired for now
+- [x] Pixel edges (hardened actor layer), arcade-style HUD; renamed Borough Brawl (working title)
+- [x] Tests updated: the bot uses every special; e2e covers run, throw, dive + shockwave
+
 ### B2 Next *(now)*
 - [ ] **Playtest B1 with the kids**: what's fun, what's confusing, too easy or too hard? (The test
   bot clears stage 1 every run, so it's probably gentle.)
@@ -110,7 +120,8 @@ fight the evasive play dash is for, so see if dash is fun on its own first.*
 - [ ] Boss at the end of stage 1
 - [ ] Ranged enemy (forces movement)
 - [ ] Grab + throw
-- [ ] Hero select (pick your two from a roster of 3–4)
+- [ ] Hero select (pick your two from a roster of 3–4); Titan returns as a pick
+- [ ] Ask the kids: Razorfin's real name? Does he look right? Hand-drawn pixel sprite sheet for him (they draw, we import)?
 - [ ] Hero colour picker (shared idea with Neon Chomp)
 - [ ] Two-player co-op (each player one hero, or tag pairs)
 - [ ] Gamepad support (both games)

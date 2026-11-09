@@ -11,7 +11,7 @@ const RIGHT = { x: 1, y: 0 };
 
 // ---- best scores
 const chomp = createStore('neonChomp.');
-const brawler = createStore('nebulaKnockout.');
+const brawler = createStore('boroughBrawl.');
 const chompBest = Math.max(chomp.read('high.normal', 0) || 0, chomp.read('high.hard', 0) || 0);
 const brawlerBest = brawler.read('best', 0) || 0;
 document.getElementById('best-chomp').textContent = chompBest ? `Best ${chompBest}` : 'Not played yet';
@@ -82,18 +82,31 @@ function drawChompPreview(t) {
 }
 
 function drawBrawlPreview(t) {
-  lc.fillStyle = '#1b0938';
-  lc.fillRect(0, 0, 140, 60);
-  lc.fillStyle = '#ff5fd2';
-  lc.fillRect(0, 34, 140, 1);
-  lc.fillStyle = '#12062a';
-  lc.fillRect(0, 35, 140, 25);
-  const phase = Math.floor(t / 0.35) % 4; // a little jab loop
-  drawRig(lc, 46, 54, 1, phase === 1 ? POSES.jab : phase === 2 ? POSES.cross : walkPose(t * 3), HEROES.nova.style, 0.55, { t });
-  drawRig(lc, 28, 50, 1, POSES.idle, HEROES.titan.style, 0.62, { t, bob: Math.sin(t * 4) * 0.4 });
+  // A slice of the street: dusk sky, brick wall, sidewalk, road. Shark slashes a Punk.
+  const sky = lc.createLinearGradient(0, 0, 0, 30);
+  sky.addColorStop(0, '#231a3a');
+  sky.addColorStop(1, '#e0784a');
+  lc.fillStyle = sky;
+  lc.fillRect(0, 0, 140, 30);
+  lc.fillStyle = '#7a3b2e';
+  lc.fillRect(0, 8, 140, 24);
+  lc.fillStyle = '#5a2a22';
+  for (let y = 10; y < 32; y += 3) lc.fillRect(0, y, 140, 1);
+  lc.fillStyle = '#ffcf70';
+  for (let x = 6; x < 140; x += 14) lc.fillRect(x, 12, 5, 6);
+  lc.fillStyle = '#8d8a87';
+  lc.fillRect(0, 32, 140, 5);
+  lc.fillStyle = '#3b3a40';
+  lc.fillRect(0, 37, 140, 23);
+  lc.fillStyle = '#d9b23a';
+  lc.fillRect(0, 48, 140, 1);
+  const phase = Math.floor(t / 0.4) % 4; // a little slash loop
+  const swing = phase === 1 ? POSES.slash : phase === 2 ? POSES.backslash : POSES.idle;
+  drawRig(lc, 44, 56, 1, swing, HEROES.shark.style, 0.6, { t });
+  drawRig(lc, 22, 50, 1, POSES.idle, HEROES.nova.style, 0.5, { t, bob: Math.sin(t * 4) * 0.4 });
   const hit = phase === 1 || phase === 2;
-  drawRig(lc, 70, 54, -1, hit ? POSES.hurt : POSES.idle, ENEMIES.voidling.style, 0.5, { t, flash: hit && t % 0.35 < 0.08 });
-  drawRig(lc, 104, 52, -1, POSES.idle, ENEMIES.brute.style, 0.7, { t, bob: Math.sin(t * 3) * 0.4 });
+  drawRig(lc, 76, 56, -1, hit ? POSES.hurt : POSES.idle, ENEMIES.punk.style, 0.5, { t, flash: hit && t % 0.4 < 0.08 });
+  drawRig(lc, 110, 53, -1, POSES.idle, ENEMIES.bruiser.style, 0.62, { t, bob: Math.sin(t * 3) * 0.4 });
 
   const { c, dpr } = brawlView;
   c.setTransform(dpr, 0, 0, dpr, 0, 0);

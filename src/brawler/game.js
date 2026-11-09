@@ -1,20 +1,21 @@
-// Nebula Knockout game logic. No DOM: this runs headless in tests.
+// Borough Brawl game logic. No DOM: this runs headless in tests.
 //
 //   const g = createGame();
-//   update(g, dt, controls);   // controls: { x, z: -1..1, attack, jump, special, tag: pressed this step }
+//   update(g, dt, controls);   // controls: { x, z: -1..1, run: held, attack, jump, special, tag: pressed this step }
 //   g.events                   // what happened, for sound/effects; the caller drains it
 //
 // States: intro → playing → stageClear | gameOver
 
 import { W, FLOOR, CONFIG } from './config.js';
-import { HEROES, ENEMIES, TAG_STRIKE, createFighter } from './fighters.js';
+import { HEROES, ENEMIES, TAG_STRIKE, LAND_RECOVER, createFighter } from './fighters.js';
 import { STAGES } from './stage.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const rand = (lo, hi) => lo + Math.random() * (hi - lo);
 const INTRO_TIME = 1.4;
 
-export const NO_INPUT = { x: 0, z: 0, attack: false, jump: false, special: false, tag: false };
+export const NO_INPUT = { x: 0, z: 0, run: false, attack: false, jump: false, special: false, tag: false };
+const RUN_SPEED = 1.9; // × walk speed
 
 export function createGame(stageIndex = 0) {
   const zMid = (FLOOR.top + FLOOR.bottom) / 2;
@@ -23,7 +24,7 @@ export function createGame(stageIndex = 0) {
     stateTime: 0,
     time: 0,
     stage: STAGES[stageIndex],
-    heroes: [createFighter(HEROES.nova, 'hero', 90, zMid), createFighter(HEROES.titan, 'hero', 90, zMid)],
+    heroes: [createFighter(HEROES.shark, 'hero', 90, zMid), createFighter(HEROES.nova, 'hero', 90, zMid)],
     active: 0,
     tagCooldown: 0,
     enemies: [],
@@ -127,15 +128,24 @@ function controlHero(g, ctl) {
   switch (f.state) {
     case 'idle':
     case 'walk': {
+      f.running = !!ctl.run && ctl.x !== 0;
       if (ctl.special && f.specialCooldown <= 0) {
         if (ctl.x) f.facing = Math.sign(ctl.x);
         f.specialCooldown = f.def.special.cooldown;
+        f.running = false;
         startMove(g, f, f.def.special);
-        emit(g, 'special', { hero: f.def.id });
+        emit(g, 'special', { hero: f.def.id, kind: 'throw' });
         return;
       }
       if (ctl.attack) {
         if (ctl.x) f.facing = Math.sign(ctl.x);
+        if (f.running) {
+          // Running attack: →→ then attack.
+          f.running = false;
+          startMove(g, f, f.def.run);
+          emit(g, 'special', { hero: f.def.id, kind: 'run' });
+          return;
+        }
         f.combo = 0;
         startMove(g, f, f.def.combo[0]);
         return;
@@ -144,13 +154,14 @@ function controlHero(g, ctl) {
         setState(f, 'jump');
         f.vh = f.def.jump;
         f.airAttack = false;
-        f.vx = ctl.x * sp.x;
+        f.vx = ctl.x * sp.x * (f.running ? 1.4 : 1);
         f.vz = ctl.z * sp.z * 0.6;
+        f.running = false;
         emit(g, 'jump');
         return;
       }
-      f.vx = ctl.x * sp.x;
-      f.vz = ctl.z * sp.z;
+      f.vx = ctl.x * sp.x * (f.running ? RUN_SPEED : 1);
+      f.vz = ctl.z * sp.z * (f.running ? 0.6 : 1);
       if (ctl.x) f.facing = Math.sign(ctl.x);
       const moving = ctl.x !== 0 || ctl.z !== 0;
       if (moving && f.state !== 'walk') setState(f, 'walk');
@@ -159,8 +170,23 @@ function controlHero(g, ctl) {
     }
 
     case 'jump':
+      if (f.diving) return; // committed to the dive
       f.vx = ctl.x * sp.x * 0.9; // air control
       if (ctl.x && !f.airAttack) f.facing = Math.sign(ctl.x);
+      if (ctl.special && !f.airAttack && f.specialCooldown <= 0) {
+        // Air special: a dive attack, straight down and forward.
+        const m = f.def.airSpecial;
+        f.airAttack = true;
+        f.diving = true;
+        f.move = m;
+        f.hits.clear();
+        f.vh = m.dive.vh;
+        f.vx = f.facing * m.dive.vx;
+        f.vz = 0;
+        f.specialCooldown = m.cooldown;
+        emit(g, 'special', { hero: f.def.id, kind: 'air' });
+        return;
+      }
       if (ctl.attack && !f.airAttack) {
         f.airAttack = true;
         f.move = f.def.air;
@@ -215,6 +241,7 @@ function swapIn(g, out, inn) {
   Object.assign(inn, {
     x: out.x, z: out.z, h: 0, vx: 0, vz: 0, vh: 0,
     facing: out.facing, invuln: CONFIG.tagInvuln, combo: 0, lying: false, airAttack: false,
+    diving: false, running: false,
   });
   out.move = null;
   out.vx = out.vz = 0;
@@ -242,21 +269,26 @@ function fire(g, f, p) {
   const s = f.def.scale;
   g.projectiles.push({
     x: f.x + f.facing * 20 * s, z: f.z, h: 29 * s,
-    vx: f.facing * p.speed, facing: f.facing, side: 'hero',
+    vx: f.facing * p.speed, facing: f.facing, side: 'hero', kind: p.kind, spin: 0,
     move: p, life: p.life, hits: new Set(), def: { scale: 1 },
   });
-  emit(g, 'beam');
+  emit(g, 'throw', { kind: p.kind });
 }
 
 function updateProjectiles(g, dt) {
   for (const p of g.projectiles) {
     p.x += p.vx * dt;
+    p.spin += dt;
     p.life -= dt;
     for (const e of g.enemies) {
       if (p.hits.has(e.id) || !hittable(e)) continue;
       if (Math.abs(e.z - p.z) > CONFIG.depthReach + 4) continue;
       if (Math.abs(e.x - p.x) > p.move.half + CONFIG.bodyHalf * e.def.scale) continue;
-      applyHit(g, p, e, p.move); // the beam pierces: it carries on to the next enemy
+      applyHit(g, p, e, p.move);
+      if (!p.move.pierce) {
+        p.life = 0; // stars stop at the first enemy; the fin blade cuts through
+        break;
+      }
     }
   }
   g.projectiles = g.projectiles.filter((p) => p.life > 0 && p.x > g.camX - 40 && p.x < g.camX + W + 40);
@@ -369,7 +401,7 @@ function physics(g, f, dt) {
   if (f.state === 'down' && f.lying && f.t >= CONFIG.lieTime) {
     if (f.hp <= 0) {
       setState(f, 'ko');
-      emit(g, 'ko', { x: f.x, y: f.z - 6, side: f.side, colour: f.def.style.body });
+      emit(g, 'ko', { x: f.x, y: f.z - 6, side: f.side, colour: f.def.style.torso });
     } else {
       setState(f, 'getup');
       f.lying = false;
@@ -388,10 +420,19 @@ function land(g, f) {
     f.vx *= 0.4;
     emit(g, 'thud', { x: f.x, y: f.z });
   } else if (f.state === 'jump') {
+    const dive = f.diving ? f.move : null;
     f.airAttack = false;
+    f.diving = false;
     f.move = null;
     f.vx = f.vz = 0;
-    setState(f, 'idle');
+    if (dive?.quake) {
+      startMove(g, f, dive.quake);
+      emit(g, 'quake', { x: f.x, y: f.z });
+    } else if (dive) {
+      startMove(g, f, LAND_RECOVER);
+    } else {
+      setState(f, 'idle');
+    }
   }
 }
 
@@ -403,7 +444,7 @@ function hittable(f) {
 
 /** The move a fighter can hit with right now, if any. */
 function liveMove(f) {
-  if (f.state === 'attack' && phaseOf(f) === 'active' && !f.move.projectile) return f.move;
+  if (f.state === 'attack' && phaseOf(f) === 'active' && f.move.reach) return f.move;
   if (f.state === 'jump' && f.airAttack) return f.move;
   return null;
 }
@@ -441,6 +482,8 @@ function applyHit(g, att, target, move) {
   target.move = null;
   target.queued = false;
   target.airAttack = false;
+  target.diving = false;
+  target.running = false;
   target.vz = 0;
 
   if (move.down || target.hp <= 0 || target.h > 0) {

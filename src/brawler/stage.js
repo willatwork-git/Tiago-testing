@@ -4,27 +4,27 @@
 
 export const STAGES = [
   {
-    name: 'STAGE 1 — NEON BOULEVARD',
+    name: 'STAGE 1 — DOWNTOWN',
     length: 1500,
     zones: [
       {
         trigger: 0, camX: 0,
         waves: [
-          [['voidling', 'right'], ['voidling', 'right'], ['voidling', 'left']],
+          [['punk', 'right'], ['punk', 'right'], ['punk', 'left']],
         ],
       },
       {
         trigger: 640, camX: 460,
         waves: [
-          [['voidling', 'right'], ['voidling', 'right'], ['voidling', 'left'], ['voidling', 'left']],
-          [['brute', 'right'], ['voidling', 'left'], ['voidling', 'right']],
+          [['punk', 'right'], ['punk', 'right'], ['punk', 'left'], ['punk', 'left']],
+          [['bruiser', 'right'], ['punk', 'left'], ['punk', 'right']],
         ],
       },
       {
         trigger: 1150, camX: 1020,
         waves: [
-          [['brute', 'right'], ['voidling', 'left'], ['voidling', 'right']],
-          [['brute', 'left'], ['brute', 'right'], ['voidling', 'right'], ['voidling', 'left']],
+          [['bruiser', 'right'], ['punk', 'left'], ['punk', 'right']],
+          [['bruiser', 'left'], ['bruiser', 'right'], ['punk', 'right'], ['punk', 'left']],
         ],
       },
     ],

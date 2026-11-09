@@ -1,4 +1,4 @@
-// Visual effects for Nebula Knockout: hit sparks, impact rings, dust, screen shake.
+// Visual effects for Borough Brawl: hit sparks, impact rings, dust, screen shake.
 // World pixel units. Driven by game events; respects the OS "reduce motion" setting.
 
 const reduceMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -29,18 +29,23 @@ export function createFx() {
     handle(ev, game) {
       switch (ev.type) {
         case 'hit': {
-          const colour = ev.toHero ? '#ff3b5c' : '#ffe14f';
+          const colour = ev.toHero ? '#d6402b' : '#ffd23f';
           fx.burst(ev.x, ev.y, '#ffffff', ev.heavy ? 10 : 5, ev.heavy ? 160 : 110, 0.22);
           fx.burst(ev.x, ev.y, colour, ev.heavy ? 8 : 4, ev.heavy ? 120 : 80, 0.3);
           if (ev.heavy) fx.ring(ev.x, ev.y, colour);
           fx.kick(ev.heavy ? 3 : 1);
           break;
         }
-        case 'thud': fx.burst(ev.x, ev.y, '#8f84b8', 6, 50, 0.4, 'dust'); break;
+        case 'thud': fx.burst(ev.x, ev.y, '#a39a8f', 6, 50, 0.4, 'dust'); break;
+        case 'quake':
+          fx.burst(ev.x, ev.y, '#a39a8f', 18, 120, 0.5, 'dust');
+          fx.ring(ev.x, ev.y, '#d4a531', 0.35);
+          fx.kick(4);
+          break;
         case 'ko': fx.burst(ev.x, ev.y - 10, ev.colour, 14, 90, 0.6); break;
         case 'tag': {
           const h = game.heroes[game.active];
-          fx.ring(h.x, h.z - 26, h.def.style.body, 0.35);
+          fx.ring(h.x, h.z - 26, h.def.style.hud, 0.35);
           fx.burst(h.x, h.z - 26, h.def.style.accent, 12, 120, 0.4);
           break;
         }

@@ -2,7 +2,7 @@
 
 A small browser arcade of original neon games (working title):
 - **Neon Chomp**, a maze-chase
-- **Nebula Knockout**, a side-scrolling tag-team beat 'em up
+- **Borough Brawl**, a side-scrolling tag-team street brawler set in New York
 
 This is a build project: read source properly, run it, and test changes in the browser.
 
@@ -27,10 +27,10 @@ Dev aids in either game: `?play` skips the title screen; `?debug` exposes the ga
 
 ```
 node tests/sim.mjs            # Neon Chomp logic, headless
-node tests/brawler-sim.mjs    # Nebula Knockout logic, headless (a bot plays the stage)
+node tests/brawler-sim.mjs    # Borough Brawl logic, headless (a bot plays the stage)
 # start a server on port 8765 first for these two:
 node tests/e2e.mjs            # Neon Chomp in real Chrome
-node tests/brawler-e2e.mjs    # home screen + Nebula Knockout in real Chrome
+node tests/brawler-e2e.mjs    # home screen + Borough Brawl in real Chrome
 ```
 Run the relevant pair after any change to movement, AI, combat, input, menus or states. No
 dependencies (Node 22+).
@@ -50,7 +50,9 @@ Tunable numbers live in each game's `config.js` (`src/chomp/`, `src/brawler/`).
 6. **Brawler logic has no DOM access** (`src/brawler/game.js` and below), so the headless bot
    test can run it. DOM, loop and rendering stay in `main.js` and `render.js`.
 7. **Keep files small and single-purpose.**
-8. Australian English in docs and UI text (colour, behaviour).
+8. **Each game keeps its own look** (Chomp: neon vectors; Brawl: pixel-art New York). Don't let
+   one game's style leak into the other.
+9. Australian English in docs and UI text (colour, behaviour).
 
 ## Housekeeping — every session
 

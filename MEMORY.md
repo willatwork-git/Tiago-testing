@@ -39,3 +39,8 @@ Durable decisions, with the reason. Newest at the bottom.
 | 2026-11-09 | Brawler game logic has no DOM access | A headless bot can play the stage in tests |
 | 2026-11-09 | Rule of two for shared code; only the sound synth is shared so far | Avoid guessing an "engine" before two games need it |
 | 2026-11-09 | Windows app paused; Tauri preferred when it resumes | Get both games solid first |
+| 2026-11-09 | Brawler setting moved to pixel-art New York at dusk with a street gang; renamed **Borough Brawl** (working) | Will's direction: not the same look as Neon Chomp; a road to fight on |
+| 2026-11-09 | Razorfin (the kids' shark concept) is the lead hero, translated into the code rig, not imported as an image | A painting can't animate; the rig keeps the no-assets rule. Option to import a hand-drawn sprite sheet later |
+| 2026-11-09 | Titan retired for now; returns with hero select | Razorfin took the heavy role |
+| 2026-11-09 | Specials: ground = throw, air = dive, →→ + attack = running attack; one shared cooldown per hero | Covers all three requested specials with one extra button |
+| 2026-11-09 | Fighters drawn on a separate layer with alpha snapped on/off | Real pixel-art edges instead of soft vector shapes |

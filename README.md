@@ -6,7 +6,7 @@ HTML, CSS and JavaScript. All art is drawn in code and all sound is synthesised.
 | Game | What it is |
 |---|---|
 | **Neon Chomp** | Maze chase. Clear the maze of light, dodge four Glitches, grab a power cell to Overcharge and bite back. Pick your colours and difficulty. |
-| **Nebula Knockout** | Side-scrolling tag-team brawler. Two heroes, one button to swap mid-fight, waves of cosmic invaders. Retro pixels, modern feel. *(Prototype: one stage.)* |
+| **Borough Brawl** | Side-scrolling tag-team street brawler in pixel-art New York. A sword-swinging shark and a lightning-fast partner, one button to swap mid-fight, a street gang to clear off the block. *(Prototype: one stage.)* |
 
 ## Play it
 
@@ -44,29 +44,32 @@ Then open **http://localhost:8000** and pick a game.
 | cyan square | Drift | Wanders. Unpredictable |
 | orange hexagon | Skittish | Chases from a distance, panics up close |
 
-## Nebula Knockout
+## Borough Brawl
 
 | Key | Action |
 |---|---|
 | Arrows / WASD | Move (up/down walks into or out of the screen) |
-| J or Z | Attack: tap again to combo |
-| K or X | Jump: attack in the air for a jump kick |
-| L or C | Special |
+| Tap → → and hold (or Shift) | Run |
+| J or Z | Attack: tap again to combo. While running: running attack |
+| K or X | Jump: attack in the air for a jump attack |
+| L or C | Special: a throw on the ground, a dive in the air |
 | Space | Tag your partner in |
 | P or Esc | Pause · M sound · Q back to the arcade (paused or at the end) |
 
-- **Nova** is fast: a 3-hit combo, and **Star Dash** lunges through everything in front of her.
-- **Titan** hits hard: a 2-hit combo, and **Comet Beam** blasts across the screen.
+- **Razorfin** (the shark, designed by the kids) swings a sword. Running attack **Shark Rush**,
+  thrown **Fin Blade** (cuts through a whole line), air dive **Depth Charge** (shockwave on landing).
+- **Nova** is fast: running **Star Dash**, **Star Throw**, and a diving **Comet Dive** kick.
 - **Tag** whenever you like (short cooldown). The incoming hero arrives with a strike, and the
   benched hero slowly heals. If one goes down, the other jumps in. If both go down, it's game over.
-- Enemies flash and show a **!** before they attack. Move, or jump over it.
-- Clear each wave, follow **GO →**, and beat the final arena to clear the stage.
+- The **Gutter Kings** (Punks and Bruisers) flash and show a **!** before they attack. Move, or
+  jump over it.
+- Clear each wave, follow **GO ▶**, and clear the block.
 
 ## Status
 
 - **Neon Chomp:** playable v1 (dash, sound, effects, colours, difficulty). Next: playtest and tuning.
-- **Nebula Knockout:** playable prototype, one stage. Next: playtest with the kids, then
-  pickups, a boss, more enemies and stages. See [TODO.md](TODO.md).
+- **Borough Brawl:** playable prototype, one stage, all special moves. Next: playtest with the
+  kids, then pickups, a boss, more enemies and stages. See [TODO.md](TODO.md).
 - **Windows app:** paused until both games are solid.
 
 ## Tweaking it
@@ -84,10 +87,10 @@ No dependencies, just Node 22+:
 
 ```sh
 node tests/sim.mjs              # Neon Chomp logic, headless
-node tests/brawler-sim.mjs      # Nebula Knockout: a bot plays the stage, headless
+node tests/brawler-sim.mjs      # Borough Brawl: a bot plays the stage, headless
 # with a server on port 8765:
 node tests/e2e.mjs              # Neon Chomp in real Chrome
-node tests/brawler-e2e.mjs      # arcade home + Nebula Knockout in real Chrome
+node tests/brawler-e2e.mjs      # arcade home + Borough Brawl in real Chrome
 ```
 
 ## Project docs
@@ -96,7 +99,7 @@ node tests/brawler-e2e.mjs      # arcade home + Nebula Knockout in real Chrome
 |---|---|
 | [DESIGN.md](DESIGN.md) | The arcade: shared goals, structure, how code is shared |
 | [DESIGN-CHOMP.md](DESIGN-CHOMP.md) | Neon Chomp design |
-| [DESIGN-BRAWLER.md](DESIGN-BRAWLER.md) | Nebula Knockout design, and what it borrows from which games |
+| [DESIGN-BRAWLER.md](DESIGN-BRAWLER.md) | Borough Brawl design, what it borrows from which games, and how the shark concept became a sprite |
 | [TODO.md](TODO.md) | Roadmap per game, plus ideas |
 | [ACTIVITY.md](ACTIVITY.md) | Dev log |
 | [MEMORY.md](MEMORY.md) | Decisions made, and why |
@@ -107,19 +110,19 @@ node tests/brawler-e2e.mjs      # arcade home + Nebula Knockout in real Chrome
 ```
 index.html              arcade home
 style.css               shared styles
-chomp/index.html        Neon Chomp page        brawler/index.html   Nebula Knockout page
+chomp/index.html        Neon Chomp page        brawler/index.html   Borough Brawl page
 src/
   home.js               home screen: previews, best scores
   shared/               sound synth, saved-settings helper
   chomp/                Neon Chomp: main, config, maze, entity, player, glitches,
                         render, fx, audio, ui, input, storage
-  brawler/              Nebula Knockout:
+  brawler/              Borough Brawl:
     main.js             loop, screens, wiring
     game.js             all fight logic (no DOM, so tests can run it)
     fighters.js         heroes, enemies, moves
     stage.js            wave zones
-    rig.js              code-drawn characters and poses
-    render.js           backdrop, world, HUD
+    rig.js              code-drawn characters and poses (incl. Razorfin)
+    render.js           New York street, pixel layer, HUD
     fx.js, sounds.js, input.js, storage.js, config.js
 tests/                  sim + e2e for each game; cdp.mjs is the Chrome driver
 ```

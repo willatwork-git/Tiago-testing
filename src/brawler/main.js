@@ -1,4 +1,4 @@
-// Nebula Knockout: boot, loop, screens. The fight itself lives in game.js (no DOM).
+// Borough Brawl: boot, loop, screens. The fight itself lives in game.js (no DOM).
 //
 //   title → play (intro → playing → stageClear | gameOver) → retry | arcade
 //   play ⇄ paused
