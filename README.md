@@ -1,24 +1,66 @@
 # Neon Arcade
 
-A small browser arcade of original neon games. No installs, no libraries, no build step: just
-HTML, CSS and JavaScript. All art is drawn in code and all sound is synthesised.
+A small browser arcade of original games, each with its own look. No installs, no libraries, no
+build step: just HTML, CSS and JavaScript. All art is drawn in code and all sound is synthesised.
 
 | Game | What it is |
 |---|---|
 | **Neon Chomp** | Maze chase. Clear the maze of light, dodge four Glitches, grab a power cell to Overcharge and bite back. Pick your colours and difficulty. |
 | **Borough Brawl** | Side-scrolling tag-team street brawler in detailed pixel-art New York. A sword-swinging shark and a lightning-fast partner, one button to swap mid-fight, a street gang to clear off the block. *(Prototype: one stage.)* |
 
-## Play it
+## Getting started
 
-The games use JavaScript modules, so they have to be served rather than opened as files. From
-this folder, run either of these:
+You need two things: a copy of this folder, and a tiny local web server. The games use JavaScript
+modules, which browsers won't load from a file, so double-clicking `index.html` shows a blank
+page. Serving the folder fixes that, and it only takes one command.
 
-```sh
-python3 -m http.server 8000     # macOS / Linux: Python is usually already there
-npx serve .                     # if you have Node.js
-```
+### 1. Get the code
 
-Then open **http://localhost:8000** and pick a game.
+Either:
+
+- **With git:**
+  ```sh
+  git clone https://github.com/willatwork-git/Tiago-testing.git
+  cd Tiago-testing
+  ```
+- **Without git:** on the GitHub page, click **Code → Download ZIP**, unzip it, and open a terminal
+  in the unzipped folder.
+
+### 2. Start a local server
+
+Run **one** of these from inside the folder (the one containing `index.html`):
+
+| Your computer | Command | Notes |
+|---|---|---|
+| **macOS / Linux** | `python3 -m http.server 8000` | Python 3 is usually already installed |
+| **Windows** | `py -m http.server 8000` | If `py` isn't found, install Python from [python.org](https://www.python.org/downloads/) (tick "Add to PATH"), or use the Node option |
+| **Any, with Node.js** | `npx serve -l 8000 .` | Downloads a small server the first time |
+| **VS Code** | Install the **Live Server** extension, right-click `index.html` → **Open with Live Server** | No terminal needed |
+
+You'll see something like `Serving HTTP on :: port 8000`. Leave that terminal open while you play.
+
+### 3. Play
+
+Open **http://localhost:8000** in Chrome, Edge, Firefox or Safari, and pick a game with the arrow
+keys and Enter. Each game has a **← Arcade** link back to the home screen.
+
+To stop the server, go back to the terminal and press **Ctrl + C**.
+
+### If something goes wrong
+
+| Problem | Fix |
+|---|---|
+| Blank page | You opened the file directly (`file://…`). Use the server and the `http://localhost:8000` address |
+| "Address already in use" | Something else has port 8000. Use another port, e.g. `python3 -m http.server 8080`, then open `http://localhost:8080` |
+| No sound | Browsers start audio only after your first key press or click. Also check M (mute) |
+| Keys do nothing | Click the game once so the page has keyboard focus |
+
+### Play online (optional)
+
+The arcade is a plain static site, so **GitHub Pages** can host it with no changes: on GitHub, open
+**Settings → Pages**, set **Source** to *Deploy from a branch*, choose `main` and `/ (root)`, and
+save. After a minute it's live at **https://willatwork-git.github.io/Tiago-testing/**, and anyone
+can play from that link with nothing to install.
 
 ## Neon Chomp
 
@@ -83,15 +125,20 @@ Add `?play` to a game's URL to skip its title screen.
 
 ### Tests
 
-No dependencies, just Node 22+:
+No dependencies, just [Node.js](https://nodejs.org/) 22 or newer (and Google Chrome for the e2e
+tests):
 
 ```sh
 node tests/sim.mjs              # Neon Chomp logic, headless
 node tests/brawler-sim.mjs      # Borough Brawl: a bot plays the stage, headless
-# with a server on port 8765:
+# the e2e tests need a server on port 8765 in another terminal:
+#   python3 -m http.server 8765
 node tests/e2e.mjs              # Neon Chomp in real Chrome
 node tests/brawler-e2e.mjs      # arcade home + Borough Brawl in real Chrome
 ```
+
+The e2e tests look for Chrome in its macOS location. Elsewhere, point them at it with the `CHROME`
+environment variable, e.g. `CHROME=/usr/bin/google-chrome node tests/e2e.mjs`.
 
 ## Project docs
 

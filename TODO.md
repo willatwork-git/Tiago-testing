@@ -162,6 +162,7 @@ WebView2). Use Electron only if Steam becomes the target. A PWA is the zero-effo
 
 
 ### Arcade ideas
-- **Deploy to GitHub Pages** so friends can play from a link
+- [x] README "Getting started" for the public repo: clone or ZIP, a server on macOS/Windows/Node/VS Code, troubleshooting
+- **Turn on GitHub Pages** (Settings → Pages → `main`, root) so friends can play from a link; the steps are in the README
 - **Shared player profile**: one name and colour scheme across all games
 - **Third game**: TBD

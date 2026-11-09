@@ -47,3 +47,5 @@ Durable decisions, with the reason. Newest at the bottom.
 | 2026-11-09 | Brawler art pass towards the Cosmic Invasion / Shredder's Revenge look: big cel-shaded volumetric fighters, detailed late-afternoon scenery, comic hit feedback | Will asked for "more realistic" art like the reference screenshots |
 | 2026-11-09 | Scenery lives in its own module (`src/brawler/scenery.js`), pre-drawn once from a seeded generator | It grew too big for render.js; the street must look the same every visit |
 | 2026-11-09 | Code-drawn art has a ceiling; hand-drawn sprite sheets are the path past it, but need the no-assets rule relaxed | Recorded so it's an explicit decision, not drift |
+| 2026-11-09 | Public repo is `willatwork-git/Tiago-testing`; the kids' concept art (`temp-concepts/`) and the ChatGPT review (`feedback/`) are committed in it | Will committed them; anything in the repo is public |
+| 2026-11-09 | README "Getting started" is the canonical how-to-run for outsiders (every OS + troubleshooting + Pages) | A friend should get from zero to playing without asking |

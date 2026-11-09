@@ -2,6 +2,21 @@
 
 Newest at the top.
 
+## 2026-11-09 — Public repo docs
+
+- **README:** rewrote the setup section as "Getting started":
+  - get the code (git clone or ZIP)
+  - a local server on macOS/Linux (`python3`), Windows (`py`), Node (`npx serve`) or the VS Code
+    Live Server extension
+  - open http://localhost:8000; stop with Ctrl + C
+  - a troubleshooting table: blank page, port in use, no sound, keys not working
+  - optional GitHub Pages steps
+  - the e2e tests' `CHROME` setting
+- **Intro:** no longer says "neon games", since the two games have different looks now.
+- **CLAUDE.md:** Windows server command, the public repo URL, and a note to keep the README in
+  step with it.
+- **TODO:** the "turn on GitHub Pages" item points to the README steps.
+
 ## 2026-11-09 — Borough Brawl art pass: towards the reference look
 
 - **Characters rebuilt:**

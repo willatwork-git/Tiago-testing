@@ -16,10 +16,13 @@ This is a build project: read source properly, run it, and test changes in the b
 ## Run
 
 ```
-python3 -m http.server 8000
+python3 -m http.server 8000        # Windows: py -m http.server 8000
 ```
 Open http://localhost:8000 for the arcade home, `/chomp/` or `/brawler/` for a game. A server is
-needed because the code uses ES modules.
+needed because the code uses ES modules. The README's "Getting started" is the public-facing
+version of this (clone, every OS, troubleshooting, GitHub Pages). Keep the two in step.
+
+Public repo: https://github.com/willatwork-git/Tiago-testing. Anything committed is public.
 Dev aids in either game: `?play` skips the title screen; `?debug` exposes the game state as
 `window.game`.
 
