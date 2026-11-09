@@ -48,20 +48,50 @@ can return when there's a hero select screen.
 
 ### Razorfin: from concept art to sprite
 
-The concept is a detailed painting. It can't be dropped into the game as-is: an animated fighter
-needs a pose for every action, and the painting has its own background and lighting. So the
-design is translated into the code-drawn rig, keeping what makes him recognisable at 60 px tall:
+**Goal:** an enormous, laid-back elven shark knight who looks intimidating just standing around,
+and who is recognisable from his silhouette alone. References:
+- the kids' concept art (`temp-concepts/shark-warrior.png`) for the character
+- Marvel Cosmic Invasion for the comic-book pixel treatment
+
+He has his own renderer, `src/brawler/razorfin.js`. It is **presentation only**: `def.scale` still
+drives reach and collision, and every exaggerated proportion lives in the drawing code (drawn ~12%
+larger than his hitbox).
+
+**Three-quarter view.** Like brawler sprites and the concept, he is drawn with his chest turned
+towards the camera:
+- the shoulders sit at the edges of a V-shaped torso
+- the near arm hangs in front of the body and the far arm behind it, both clear of the narrow waist
+- the head is in profile on top
+
+Pure profile (the shared rig) turned his bulk into a blob.
 
 | Concept art | In game |
 |---|---|
-| Shark head, long snout, toothy grin, dorsal fin | Counter-shaded head (dark top, pale jaw), a row of teeth, eye with glint, gill slits, two-tone fin |
-| Massive grey arms, short legs | The widest build in the game; legs at 80% length |
-| Silver leaf armour with gold trim | Shaded silver breastplate with gold leaf lines and a green gem, big silver pauldron with gold rim |
-| Gold bracers and boots | Gold forearm band, gold boots |
-| Green tabard over chainmail | Green tabard over the hips |
-| Long ornate sword | A tapered steel blade with a bright edge and fuller, a gold crossguard with a green gem; it follows the forearm, so every swing reads |
+| Huge, laid-back, intimidating | Barrel chest tapering sharply to the waist; shoulders dropped, slight hunch, chin down; slow breathing |
+| Massive bare arms, heavy hands | Upper arms about the size of his head; forearms that thicken to the wrist; big clawed hands. The free arm hangs to his boots with a gap from the body |
+| Short legs, little pointed boots | Legs at ~60% of a normal stride; small curled gold elven boots; both feet solved onto the road every frame |
+| Shark head, toothy grin, dorsal fin | Heavy brow shading the eye, broad white jaw into the throat, four big triangular teeth, gill slits, two-tone fin |
+| Silver leaf armour, gold filigree | Built from big shapes: two overlapping silver leaf plates meeting in a V, a near and a far pauldron, dark seams, thin gold edges, small bright highlights; a pointed silver bracer |
+| Green tabard over chainmail | One deep-green cloth panel with a gold edge, a belt with a gold buckle, the pale belly showing between plate and belt |
+| Long ornate sword | Tapered blade with a bright edge and fuller, gold crossguard with a green gem |
 
-If the kids want to go further, they could draw him as a small pixel sprite sheet (see TODO B2).
+**Detail by size.** Fine engraving on the plates and chainmail under the tabard appear only in the
+larger title treatment (`detail`), where players can see them. At gameplay size they'd be noise.
+
+**His own poses** (`RAZORFIN_POSES`, `razorfinWalk`):
+- **Title:** centre stage, ~30% larger, three-quarter, near hand resting on his planted sword,
+  far arm hanging.
+- **Idle:** dropped shoulders, free arm hanging, sword carried low so his face and chest stay
+  visible.
+- **Walk:** short, heavy steps. The whole body dips on each footfall and the free arm swings.
+- **Cleave:** three distinct beats. Blade raised (startup), full-body swing (active), and a low
+  follow-through into the road (recovery, via the move's `followPose`).
+- **Shark Rush:** the armoured shoulder leads (a bigger pauldron, pushed forward), head tucked,
+  sword trailing. Speed lines instead of a slash arc.
+- **Slash smears** follow his real blade: the arc runs from the sword tip in the wind-up pose to
+  the tip in the swing pose, around his shoulder (`razorfinSword()`).
+
+If the kids want to go further, they could draw him as a pixel sprite sheet (see TODO B2).
 
 ## The Gutter Kings (enemies)
 

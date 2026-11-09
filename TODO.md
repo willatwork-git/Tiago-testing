@@ -119,6 +119,14 @@ fight the evasive play dash is for, so see if dash is fun on its own first.*
 - [x] Scenery module: late-afternoon sky with clouds, hazy skyline, stone/brick/brownstone with brick-level detail, recessed glass windows, shopfronts, shutters, posters, trees, benches, news boxes, cracked sidewalk, textured road with potholes
 - [x] Comic impact bursts, floating damage numbers, ×N HITS combo counter, speed lines
 
+### B1.7 Razorfin character-art pass *(2026-11-09)*
+- [x] Own renderer (`razorfin.js`), three-quarter view, presentation only (`def.scale` untouched)
+- [x] Silhouette: barrel chest + sharp waist, head-sized bare upper arms, heavy forearms and hands, short legs, pointed boots planted on the road, free arm hanging with a gap
+- [x] Head: heavy brow, broad white jaw, readable triangular teeth
+- [x] Armour from big shapes: overlapping silver leaf plates, dark seams, gold edges, deep-green panel, pointed bracer; engraving + chainmail only on the title
+- [x] Poses: title (planted sword), laid-back idle, heavy walk, three-beat cleave, shoulder-first Shark Rush; slash smear follows the blade
+- [x] Before/after shots in both facings; brawler sim + e2e + gamepad e2e pass
+
 ### B2 Next *(now)*
 - [ ] **Playtest B1 with the kids**: what's fun, what's confusing, too easy or too hard? (The test
   bot clears stage 1 every run, so it's probably gentle.)
@@ -127,7 +135,7 @@ fight the evasive play dash is for, so see if dash is fun on its own first.*
 - [ ] Ranged enemy (forces movement)
 - [ ] Grab + throw
 - [ ] Hero select (pick your two from a roster of 3–4); Titan returns as a pick
-- [ ] Ask the kids: Razorfin's real name? Does he look right?
+- [ ] Ask the kids: Razorfin's real name? Does he look right after the art pass? (Before/after sheet is in the 2026-11-09 ACTIVITY entry's notes)
 - [ ] **Hand-drawn sprite sheets** (the last step to reference quality): the kids or an artist draw each pose as pixel art; we load PNG sheets instead of the code rig. That means relaxing the no-assets rule for the brawler, so it needs a decision first
 - [ ] Hero colour picker (shared idea with Neon Chomp)
 - [ ] Two-player co-op (each player one hero, or tag pairs)

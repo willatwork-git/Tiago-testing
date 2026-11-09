@@ -202,7 +202,9 @@ src/
     game.js             all fight logic (no DOM, so tests can run it)
     fighters.js         heroes, enemies, moves
     stage.js            wave zones
-    rig.js              code-drawn characters and poses (incl. Razorfin)
+    rig.js              code-drawn characters and poses
+    razorfin.js         Razorfin's own renderer and poses (three-quarter view)
+    paint.js            shared cel-shading helpers
     render.js           New York street, pixel layer, HUD
     fx.js, sounds.js, input.js, storage.js, config.js
 tests/                  sim + e2e for each game; cdp.mjs is the Chrome driver

@@ -29,12 +29,12 @@ export const HEROES = {
       kind: 'shark', hud: '#5fb3d9',
       torso: '#c2c8cf', upperArm: '#5d6f84', forearm: '#5d6f84', hand: '#5d6f84',
       thigh: '#3f4a58', shin: '#3f4a58', boot: '#d4a531', neck: '#5d6f84',
-      head: '#5d6f84', belly: '#ece9de', accent: '#d4a531', cloth: '#2f6b3f',
+      head: '#5d6f84', belly: '#ece9de', accent: '#d4a531', cloth: '#1f5a34',
     },
     combo: [
       { pose: 'slash', windPose: 'slashWind', startup: 0.09, active: 0.08, recovery: 0.15, reach: [6, 44], dmg: 9, kb: 60, step: 20, blade: true },
       { pose: 'backslash', windPose: 'backslashWind', startup: 0.08, active: 0.08, recovery: 0.17, reach: [6, 44], dmg: 10, kb: 70, step: 20, blade: true },
-      { pose: 'cleave', windPose: 'cleaveWind', startup: 0.14, active: 0.09, recovery: 0.28, reach: [6, 48], dmg: 16, kb: 210, down: true, heavy: true, step: 30, blade: true },
+      { pose: 'cleave', windPose: 'cleaveWind', followPose: 'cleaveFollow', startup: 0.14, active: 0.09, recovery: 0.28, reach: [6, 48], dmg: 16, kb: 210, down: true, heavy: true, step: 30, blade: true },
     ],
     air: { pose: 'airSlash', reach: [-4, 38], dmg: 12, kb: 150, down: true, blade: true },
     run: {

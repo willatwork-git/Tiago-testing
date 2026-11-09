@@ -8,7 +8,8 @@
 import { W, H, FLOOR } from './config.js';
 import { HEROES, ENEMIES } from './fighters.js';
 import { STAGES } from './stage.js';
-import { drawRig, POSES, walkPose } from './rig.js';
+import { drawRig, getPose } from './rig.js';
+import { razorfinSword } from './razorfin.js';
 import { activeHero, partnerHero, phaseOf } from './game.js';
 import { Scenery } from './scenery.js';
 
@@ -75,19 +76,28 @@ export class Renderer {
     lc.fill();
   }
 
-  poseFor(f) {
+  /** The pose name for a fighter's current state (and attack phase). */
+  poseName(f) {
     switch (f.state) {
-      case 'walk': return walkPose(f.t * (f.running ? 16 : f.side === 'hero' ? 11 : 8), f.running);
-      case 'jump': return f.airAttack ? POSES[f.move.pose] : POSES.jump;
-      case 'attack':
-        return POSES[(phaseOf(f) === 'startup' && f.move.windPose) || f.move.pose];
-      case 'windup': return POSES[`${f.def.attack.pose}Windup`];
-      case 'hurt': return POSES.hurt;
+      case 'walk': return f.running ? 'run' : 'walk';
+      case 'jump': return f.airAttack ? f.move.pose : 'jump';
+      case 'attack': {
+        // Startup shows the wind-up, recovery the follow-through, if the move has them.
+        const ph = phaseOf(f);
+        if (ph === 'startup' && f.move.windPose) return f.move.windPose;
+        if (ph === 'recovery' && f.move.followPose) return f.move.followPose;
+        return f.move.pose;
+      }
+      case 'windup': return `${f.def.attack.pose}Windup`;
       case 'down':
-      case 'ko': return POSES.down;
-      case 'getup': return POSES.getup;
-      default: return POSES.idle;
+      case 'ko': return 'down';
+      default: return f.state; // idle, hurt, getup
     }
+  }
+
+  poseFor(f) {
+    const speed = f.style.kind === 'shark' ? (f.running ? 13 : 7.5) : f.running ? 16 : f.side === 'hero' ? 11 : 8;
+    return getPose(f.style.kind, this.poseName(f), { phase: f.t * speed });
   }
 
   drawFighter(f, camX, t) {
@@ -134,8 +144,32 @@ export class Renderer {
       ac.fillRect(Math.round(x) - 1, top + 10, 3, 3);
     }
 
-    // Smear: a motion arc on a hero's active frames.
-    if (f.side === 'hero' && f.state === 'attack' && phaseOf(f) === 'active' && f.move.reach && f.move.pose !== 'tagIn') {
+    // Smear: a motion arc on a hero's active frames. Razorfin's follows his real blade tip,
+    // from where it was in the wind-up to where it is in the swing.
+    const bladeArc = f.style.kind === 'shark' && f.state === 'attack' && f.move.blade && f.move.windPose && phaseOf(f) === 'active';
+    if (bladeArc) {
+      const s = f.def.scale;
+      const from = razorfinSword(getPose('shark', f.move.windPose), f.facing, s);
+      const to = razorfinSword(getPose('shark', f.move.pose), f.facing, s);
+      const [cx, cy] = to.shoulder;
+      const a0 = Math.atan2(from.tip[1] - cy, from.tip[0] - cx);
+      const a1 = Math.atan2(to.tip[1] - cy, to.tip[0] - cx);
+      let d = a1 - a0;
+      while (d > Math.PI) d -= Math.PI * 2;
+      while (d < -Math.PI) d += Math.PI * 2;
+      const r = Math.hypot(to.tip[0] - cx, to.tip[1] - cy);
+      ac.save();
+      ac.translate(Math.round(x), Math.round(y));
+      for (const [w, col, rr] of [[6, '#bcd6ff', r * 0.96], [3, '#ffffff', r]]) {
+        ac.lineWidth = w;
+        ac.strokeStyle = col;
+        ac.beginPath();
+        ac.arc(cx, cy, rr, a0, a1, d < 0);
+        ac.stroke();
+      }
+      ac.restore();
+    } else if (f.side === 'hero' && f.state === 'attack' && phaseOf(f) === 'active' && f.move.reach && f.move.pose !== 'tagIn' && !f.move.lunge) {
+      // (Lunges like Shark Rush get speed lines instead of a slash arc.)
       const s = f.def.scale;
       const r = f.move.reach[1] * s * 0.8;
       const cy = y - (f.move.pose === 'highKick' ? 36 : 31) * s;
@@ -265,16 +299,19 @@ export class Renderer {
 
   drawTitleCast(t) {
     // The heroes squaring up to two of the Gutter Kings.
+    // Razorfin is the focal point: centre stage, larger, three-quarter, hand on his planted
+    // sword, with the full engraving and chainmail that gameplay size can't show.
     const cast = [
-      { def: HEROES.shark, x: 150, z: 236, facing: 1 },
-      { def: HEROES.nova, x: 104, z: 210, facing: 1 },
-      { def: ENEMIES.bruiser, x: 350, z: 214, facing: -1 },
-      { def: ENEMIES.punk, x: 318, z: 244, facing: -1 },
+      { def: HEROES.nova, x: 120, z: 214, facing: 1 },
+      { def: HEROES.shark, x: 214, z: 238, facing: 1, pose: 'title', scale: 1.3, detail: true },
+      { def: ENEMIES.bruiser, x: 372, z: 212, facing: -1 },
+      { def: ENEMIES.punk, x: 338, z: 240, facing: -1 },
     ];
-    for (const c of cast) this.drawShadow(c.x, c.z, 0, c.def.scale);
+    for (const c of cast) this.drawShadow(c.x, c.z, 0, c.def.scale * (c.scale ?? 1));
     this.drawActors(cast.map((c, i) => ({
       z: c.z,
-      draw: () => drawRig(this.ac, c.x, c.z, c.facing, POSES.idle, c.def.style, c.def.scale, { t, bob: Math.sin(t * 4 + i) * 0.6 }),
+      draw: () => drawRig(this.ac, c.x, c.z, c.facing, getPose(c.def.style.kind, c.pose ?? 'idle'), c.def.style, c.def.scale * (c.scale ?? 1),
+        { t, bob: c.pose ? 0 : Math.sin(t * 4 + i) * 0.6, detail: c.detail }),
     })));
     this.hardenActors();
     this.lc.drawImage(this.actors, 0, 0);

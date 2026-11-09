@@ -2,6 +2,41 @@
 
 Newest at the top.
 
+## 2026-11-09 — Razorfin character-art pass
+
+- **Own renderer:** new `src/brawler/razorfin.js`, with the shared cel-shading helpers moved to
+  `src/brawler/paint.js`. `rig.js` hands the shark off to it, and `getPose()` prefers his own
+  poses.
+- **Three-quarter view:** the first attempt in profile still read as a blob, and the near shoulder
+  plate hid his face. Fixed by giving him the chest-to-camera three-quarter view of brawler
+  sprites, and drawing his head last.
+- **Silhouette:**
+  - barrel chest and sharp waist
+  - head-sized bare upper arms, heavy forearms and clawed hands
+  - short legs on pointed gold boots, feet solved onto the road
+  - the free arm hanging clear of the body
+  - heavy brow, broad white jaw, four triangular teeth
+- **Armour:** overlapping silver leaf plates with seams and gold edges, near and far pauldrons, a
+  pointed bracer, a deep-green panel, belt and buckle. Engraving and chainmail appear on the
+  title only.
+- **Poses:**
+  - title: focal, three-quarter, hand on the planted sword
+  - laid-back idle with the sword low
+  - heavy walk with a footfall dip
+  - three-beat cleave: raise, swing, follow-through (new `followPose`)
+  - shoulder-first Shark Rush
+  - the cleave and slash smears follow the real blade; no slash arc on lunges
+- **Checked:**
+  - before and after shots of the title, idle beside a punk, the three cleave beats and the rush,
+    in both facings, plus two walk frames
+  - the brawler sim, brawler e2e (clean profile, twice), gamepad e2e, and Chomp e2e and sim all pass
+  - one run reported `TAU is not defined`: a cached browser profile from before the paint.js
+    fix; fresh profiles pass
+- **Not changed:** `def.scale`, reach, collision, timings.
+- **Open:**
+  - at gameplay size the pauldrons cover most of the bare upper arm
+  - the title's planted sword is shorter than in the concept, because his long arms rest low
+
 ## 2026-11-09 — Controllers: PS5 on Mac, Xbox on PC
 
 - **New `src/shared/gamepad.js`:** reads the Gamepad API and maps buttons by position (Chrome uses

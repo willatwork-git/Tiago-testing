@@ -52,3 +52,6 @@ Durable decisions, with the reason. Newest at the bottom.
 | 2026-11-09 | Controllers via the Gamepad API, mapped by button *position* (standard layout); labels switch ✕□△ vs AXY by controller id | Chrome reports DualSense (Mac) and Xbox (PC) identically, so one mapping serves both |
 | 2026-11-09 | Brawler pad: □ attack, ✕ jump, △ special, R1/○ tag, hold R2 run; Chomp pad: ✕/□ dash | Matches genre habits (Shredder's Revenge style: square attack, cross jump) |
 | 2026-11-09 | Controller tests inject a virtual pad (`tests/gamepad-e2e.mjs`) | No physical pad in headless Chrome; a real-pad check is still a manual step |
+| 2026-11-09 | Razorfin gets his own renderer (`src/brawler/razorfin.js`), drawn in three-quarter view; shared paint helpers moved to `src/brawler/paint.js` | Pure profile turned his bulk into a blob; brawler sprites and the concept are three-quarter |
+| 2026-11-09 | Character art passes are presentation only; proportions live in drawing code, never in `def.scale` | `def.scale` feeds reach and collision; art must not change gameplay |
+| 2026-11-09 | Moves can have `windPose` (startup), `pose` (active) and `followPose` (recovery) | Gives heavy attacks three readable beats |

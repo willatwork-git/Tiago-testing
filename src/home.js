@@ -3,7 +3,7 @@
 import { drawChomper } from './chomp/render.js';
 import { GLITCH_DEFS } from './chomp/glitches.js';
 import { loadColours } from './chomp/storage.js';
-import { drawRig, POSES, walkPose } from './brawler/rig.js';
+import { drawRig, POSES, walkPose, getPose } from './brawler/rig.js';
 import { HEROES, ENEMIES } from './brawler/fighters.js';
 import { createStore } from './shared/store.js';
 import { createGamepad } from './shared/gamepad.js';
@@ -122,8 +122,7 @@ function drawBrawlPreview(t) {
   lc.fillStyle = '#d9b23a';
   lc.fillRect(0, 48, 140, 1);
   const phase = Math.floor(t / 0.4) % 4; // a little slash loop
-  const swing = phase === 1 ? POSES.slash : phase === 2 ? POSES.backslash : POSES.idle;
-  drawRig(lc, 44, 56, 1, swing, HEROES.shark.style, 0.6, { t });
+  drawRig(lc, 44, 56, 1, phase === 1 ? getPose('shark', 'slash') : phase === 2 ? getPose('shark', 'backslash') : getPose('shark', 'idle'), HEROES.shark.style, 0.6, { t });
   drawRig(lc, 22, 50, 1, POSES.idle, HEROES.nova.style, 0.5, { t, bob: Math.sin(t * 4) * 0.4 });
   const hit = phase === 1 || phase === 2;
   drawRig(lc, 76, 56, -1, hit ? POSES.hurt : POSES.idle, ENEMIES.punk.style, 0.5, { t, flash: hit && t % 0.4 < 0.08 });
