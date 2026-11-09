@@ -370,7 +370,7 @@ export class Renderer {
     let tagColour = P.red;
     if (partner.hp > 0) {
       const can = g.tagCooldown <= 0;
-      tag = can ? 'TAG: SPACE' : 'TAG …';
+      tag = can ? `TAG: ${v.hints.tag}` : 'TAG …';
       tagColour = can ? P.yellow : P.dim;
     }
     this.text(tag, x0 + 120 * u, y0 + 32 * u, { size: 4.5 * u, colour: tagColour });
@@ -415,17 +415,17 @@ export class Renderer {
     if (v.paused) {
       this.dim();
       this.text('PAUSED', cx, cy - 14 * u, { size: 24 * u, align: 'center', colour: P.paper, shadow: P.red });
-      this.text(`P resume  ·  Q arcade  ·  M sound ${v.muted ? 'on' : 'off'}`, cx, cy + 14 * u, { size: 7 * u, colour: P.dim, align: 'center' });
+      this.text(`${v.hints.pause} resume  ·  ${v.hints.quit} arcade  ·  M sound ${v.muted ? 'on' : 'off'}`, cx, cy + 14 * u, { size: 7 * u, colour: P.dim, align: 'center' });
     } else if (g.state === 'gameOver' && g.stateTime > 0.8) {
       this.dim();
       this.text('GAME OVER', cx, cy - 24 * u, { size: 24 * u, colour: P.red, align: 'center' });
       this.text(`SCORE ${g.score}   ·   BEST ${v.best}`, cx, cy + 2 * u, { size: 8 * u, align: 'center' });
-      if (g.stateTime > 1.5) this.text('ENTER retry  ·  Q arcade', cx, cy + 22 * u, { size: 7 * u, colour: P.yellow, align: 'center' });
+      if (g.stateTime > 1.5) this.text(`${v.hints.start} retry  ·  ${v.hints.quit} arcade`, cx, cy + 22 * u, { size: 7 * u, colour: P.yellow, align: 'center' });
     } else if (g.state === 'stageClear' && g.stateTime > 0.5) {
       this.dim();
       this.text('BLOCK CLEARED!', cx, cy - 24 * u, { size: 22 * u, colour: P.yellow, align: 'center', shadow: P.red });
       this.text(`SCORE ${g.score}   ·   BEST ${v.best}`, cx, cy + 2 * u, { size: 8 * u, align: 'center' });
-      if (g.stateTime > 1.5) this.text('ENTER play again  ·  Q arcade', cx, cy + 22 * u, { size: 7 * u, colour: P.paper, align: 'center' });
+      if (g.stateTime > 1.5) this.text(`${v.hints.start} play again  ·  ${v.hints.quit} arcade`, cx, cy + 22 * u, { size: 7 * u, colour: P.paper, align: 'center' });
     }
   }
 
@@ -440,13 +440,11 @@ export class Renderer {
     this.text('BOROUGH BRAWL', 0, 0, { size: 34 * u, colour: P.yellow, align: 'center', shadow: P.red });
     c.restore();
     this.text('Take back the block.', cx, y0 + 70 * u, { size: 8 * u, colour: P.paper, align: 'center' });
-    if (Math.floor(v.time * 2) % 2 === 0) this.text('PRESS ENTER', cx, y0 + 96 * u, { size: 12 * u, colour: P.paper, align: 'center', shadow: P.red });
+    if (v.hints.pad) this.text(v.hints.pad, cx, y0 + 82 * u, { size: 5.5 * u, colour: P.green, align: 'center' });
+    if (Math.floor(v.time * 2) % 2 === 0) this.text(`PRESS ${v.hints.start}`, cx, y0 + 96 * u, { size: 12 * u, colour: P.paper, align: 'center', shadow: P.red });
     if (v.best > 0) this.text(`BEST ${v.best}`, cx, y0 + 112 * u, { size: 6 * u, colour: P.dim, align: 'center' });
 
-    const lines = [
-      'MOVE  arrows/WASD     RUN  tap → →     ATTACK  J/Z     JUMP  K/X',
-      'SPECIAL  L/C  (throw · in the air: dive)     TAG PARTNER  Space',
-    ];
+    const lines = v.hints.lines;
     this.panel(this.gx + 30 * u, y0 + this.gh - 26 * u, this.gw - 60 * u, 21 * u);
     lines.forEach((l, i) => this.text(l, cx, y0 + this.gh - (19 - i * 8) * u, { size: 4.6 * u, colour: P.paper, align: 'center' }));
   }

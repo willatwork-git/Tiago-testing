@@ -119,7 +119,7 @@ export async function openBrowser({ out, port = 9333, name = 'e2e' } = {}) {
     finish() {
       this.check(pageErrors.length === 0, `no uncaught page errors${pageErrors.length ? `: ${[...new Set(pageErrors)].join(' | ')}` : ''}`);
       console.log(fails ? `${fails} FAILED` : 'ALL PASS', `(screenshots in ${OUT})`);
-      process.exitCode = fails ? 1 : 0;
+      if (fails) process.exitCode = 1; // never clear a failure from an earlier browser in the same run
       ws.close();
       chrome.kill();
     },

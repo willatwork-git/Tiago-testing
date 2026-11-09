@@ -6,6 +6,7 @@ import { loadColours } from './chomp/storage.js';
 import { drawRig, POSES, walkPose } from './brawler/rig.js';
 import { HEROES, ENEMIES } from './brawler/fighters.js';
 import { createStore } from './shared/store.js';
+import { createGamepad } from './shared/gamepad.js';
 
 const RIGHT = { x: 1, y: 0 };
 
@@ -30,6 +31,26 @@ window.addEventListener('keydown', (e) => {
     e.preventDefault();
   }
 });
+
+// ---- controller: d-pad / stick to choose, ✕ / A (or Options / Menu) to play
+const pad = createGamepad();
+const hint = document.querySelector('.arcade header .hint');
+let padKind = null;
+(function pollPad() {
+  pad.poll();
+  if (pad.kind !== padKind) {
+    padKind = pad.kind;
+    hint.textContent = padKind
+      ? `Pick a game. D-pad or stick to choose, ${pad.label('south')} to play.`
+      : 'Pick a game. Arrow keys or Tab to choose, Enter to play.';
+  }
+  const d = pad.dirPressed();
+  const i = Math.max(0, cards.indexOf(document.activeElement));
+  if (d && (d.x || d.y)) cards[(i + (d.x || d.y) + cards.length) % cards.length].focus();
+  if (pad.anyPressed(['south', 'start'])) cards[i].click();
+  requestAnimationFrame(pollPad);
+})();
+if (new URLSearchParams(location.search).has('debug')) window.pad = pad;
 
 // ---- animated previews
 function setup(canvas, w, h) {

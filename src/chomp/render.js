@@ -401,19 +401,19 @@ export class Renderer {
       if (game.stateTime >= CONFIG.readyTime) {
         // Prompt just under the player, on a backing so it reads over the walls.
         const py = oy + (game.player.y + 1.6) * ts;
-        this.pill('ARROWS / WASD TO MOVE', cx, py, ts * 0.5);
+        this.pill(`${game.hints?.move ?? 'ARROWS / WASD'} TO MOVE`, cx, py, ts * 0.5);
       }
     } else if (game.state === 'levelClear') {
       this.text(`LEVEL ${game.level} CLEARED`, cx, midY, { size: ts * 0.8, colour: PALETTE.ready, glow: ts * 0.5 });
     } else if (game.state === 'gameOver') {
       this.text('GAME OVER', cx, midY, { size: ts * 0.9, colour: PALETTE.danger, glow: ts * 0.5 });
-      if (game.stateTime > 1) this.pill('ENTER  RETRY     Q  MENU', cx, midY + ts * 1.4, ts * 0.5);
+      if (game.stateTime > 1) this.pill(`${game.hints?.start ?? 'ENTER'}  RETRY     ${game.hints?.quit ?? 'Q'}  MENU`, cx, midY + ts * 1.4, ts * 0.5);
     } else if (game.state === 'paused') {
       const c = this.ctx;
       c.fillStyle = 'rgba(5, 3, 15, 0.7)';
       c.fillRect(0, 0, this.w, this.h);
       this.text('PAUSED', cx, oy + bh / 2, { size: ts * 1.2, glow: ts * 0.6 });
-      this.text('P  RESUME     Q  QUIT TO MENU', cx, oy + bh / 2 + ts * 1.3, { size: ts * 0.55, colour: PALETTE.dim });
+      this.text(`${game.hints?.pause ?? 'P'}  RESUME     ${game.hints?.quit ?? 'Q'}  QUIT TO MENU`, cx, oy + bh / 2 + ts * 1.3, { size: ts * 0.55, colour: PALETTE.dim });
       this.text(`M  SOUND ${game.muted ? 'OFF' : 'ON'}`, cx, oy + bh / 2 + ts * 2.1, { size: ts * 0.55, colour: PALETTE.dim });
     }
   }

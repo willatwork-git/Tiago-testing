@@ -34,7 +34,7 @@ style.css             shared styles (home, menus)
 chomp/index.html      Neon Chomp page
 brawler/index.html    Borough Brawl page
 src/
-  shared/             code used by more than one game (sound synth, saved settings)
+  shared/             code used by more than one game (sound synth, saved settings, controllers)
   chomp/              Neon Chomp modules
   brawler/            Borough Brawl modules
 tests/
@@ -42,7 +42,8 @@ tests/
   e2e.mjs             Neon Chomp in real Chrome
   brawler-sim.mjs     Borough Brawl logic, headless (a bot plays the stage)
   brawler-e2e.mjs     Borough Brawl + home screen in real Chrome
-  cdp.mjs             tiny Chrome DevTools driver used by both e2e files
+  gamepad-e2e.mjs     PS5 + Xbox controllers, via a virtual pad
+  cdp.mjs             tiny Chrome DevTools driver used by the e2e files
 ```
 
 Each game is its own page. Moving between games is a normal link, so each game starts clean,
@@ -51,6 +52,14 @@ keeps its own state, and a bug in one can't break the other.
 **Rule of two:** code moves into `src/shared/` only when both games actually use it. Today that's
 the sound synth (tones, noise, arpeggios) and the saved-settings wrapper. Each game keeps its own sound list, input, effects and
 rendering, because they work in different units (tiles vs pixels) and have different needs.
+
+## Controllers
+
+`src/shared/gamepad.js` reads the browser Gamepad API. Chrome reports a PS5 DualSense (Mac) and an
+Xbox controller (PC) in the same "standard" layout, so buttons are mapped by **position** (south,
+west, north, east, R1, R2, Options/Menu, Create/View) and only the **labels** change: ✕□△○ for
+PlayStation, AXYB for Xbox. Keyboard and controller work at the same time. Each game maps
+positions to actions in its own input module.
 
 ## Platform
 

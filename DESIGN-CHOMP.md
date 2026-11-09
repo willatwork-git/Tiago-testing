@@ -114,7 +114,9 @@ All values are in `DIFFICULTY` in `src/chomp/config.js`.
 Each life starts when you press a direction you can actually move in. Nothing moves before that,
 so the opening is always the player's choice. Losing window focus pauses the game, READY included.
 
-Touch and gamepad come later.
+Controller (PS5 / Xbox): stick or d-pad move · ✕/A or □/X dash · Options/Menu pause ·
+Create/View quit to menu (paused) · on the menu, d-pad left/right switches difficulty and ✕/A plays.
+Touch comes later.
 
 ## Tech
 

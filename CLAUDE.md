@@ -34,6 +34,7 @@ node tests/brawler-sim.mjs    # Borough Brawl logic, headless (a bot plays the s
 # start a server on port 8765 first for these two:
 node tests/e2e.mjs            # Neon Chomp in real Chrome
 node tests/brawler-e2e.mjs    # home screen + Borough Brawl in real Chrome
+node tests/gamepad-e2e.mjs    # PS5 + Xbox controllers (virtual pad injected) in real Chrome
 ```
 Run the relevant pair after any change to movement, AI, combat, input, menus or states. No
 dependencies (Node 22+).

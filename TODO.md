@@ -131,7 +131,7 @@ fight the evasive play dash is for, so see if dash is fun on its own first.*
 - [ ] **Hand-drawn sprite sheets** (the last step to reference quality): the kids or an artist draw each pose as pixel art; we load PNG sheets instead of the code rig. That means relaxing the no-assets rule for the brawler, so it needs a decision first
 - [ ] Hero colour picker (shared idea with Neon Chomp)
 - [ ] Two-player co-op (each player one hero, or tag pairs)
-- [ ] Gamepad support (both games)
+- [x] Gamepad support (both games + home): PS5 on Mac, Xbox on PC, in Chrome; prompts match the controller; rumble in the brawler
 - [ ] More stages
 
 ## Later
@@ -141,12 +141,11 @@ Resume once both games are solid. Preferred wrapper: **Tauri** (small installer,
 WebView2). Use Electron only if Steam becomes the target. A PWA is the zero-effort interim.
 - Decisions needed: audience (friends / Microsoft Store / Steam), code signing, final names +
   icons + licence, auto-updates, controller support
-- Prep: gamepad, fullscreen toggle, Quit button, version number, hide dev aids, GitHub Actions
+- Prep: ~~gamepad~~ (done), fullscreen toggle, Quit button, version number, hide dev aids, GitHub Actions
   Windows build
 
 ### Neon Chomp ideas
 - **Touch controls** — swipe, plus an on-screen dash button; playable on phone
-- **Gamepad support** (Gamepad API)
 - **Procedural mazes** — a new layout every level, generated symmetrically
 - **More power-ups** — Magnet (pulls pellets in), Phase (walk through one wall), Freeze (Glitches
   stop), Decoy

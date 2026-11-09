@@ -62,6 +62,39 @@ The arcade is a plain static site, so **GitHub Pages** can host it with no chang
 save. After a minute it's live at **https://willatwork-git.github.io/Tiago-testing/**, and anyone
 can play from that link with nothing to install.
 
+## Using a controller
+
+Both games and the home screen work with a **PS5 DualSense** or an **Xbox controller** in
+**Chrome** (also Edge). Keyboard and controller work side by side, and the on-screen prompts
+switch to ✕ / □ / △ or A / X / Y to match what you're holding.
+
+1. **Connect it:**
+   - **PS5 on a Mac:** System Settings → Bluetooth, then hold **PS + Create** on the controller
+     until the light flashes, and click **Connect**. Or plug in a USB-C cable.
+   - **Xbox on a PC:** plug it in, or pair it in Settings → Bluetooth & devices. It just works on
+     Windows.
+2. Open the game in Chrome and **press any button**. Browsers only reveal a controller after a
+   press. The title screen then says *CONTROLLER CONNECTED*.
+
+| | PS5 | Xbox | Borough Brawl | Neon Chomp |
+|---|---|---|---|---|
+| Move | Left stick / d-pad | Left stick / d-pad | Move | Move |
+| | ✕ | A | Jump · start / retry | Dash · play / retry |
+| | □ | X | Attack | Dash |
+| | △ | Y | Special | |
+| | R1 or ○ | RB or B | Tag partner | |
+| | hold R2 | hold RT | Run | |
+| | Options | Menu | Pause | Pause |
+| | Create | View | Back to arcade (when paused) | Quit to menu (when paused) |
+
+On the home screen, use the d-pad or stick to choose and ✕ / A to play. On the Neon Chomp menu,
+d-pad left/right switches difficulty. Borough Brawl rumbles on big hits (where Chrome supports it
+for your controller).
+
+**Not detected?** Use `http://localhost:…` or the GitHub Pages link. Browsers hide controllers on
+plain `http://` addresses from other machines. Check the controller at
+[hardwaretester.com/gamepad](https://hardwaretester.com/gamepad).
+
 ## Neon Chomp
 
 | Key | Action |
@@ -135,6 +168,7 @@ node tests/brawler-sim.mjs      # Borough Brawl: a bot plays the stage, headless
 #   python3 -m http.server 8765
 node tests/e2e.mjs              # Neon Chomp in real Chrome
 node tests/brawler-e2e.mjs      # arcade home + Borough Brawl in real Chrome
+node tests/gamepad-e2e.mjs      # PS5 + Xbox controllers (virtual) in real Chrome
 ```
 
 The e2e tests look for Chrome in its macOS location. Elsewhere, point them at it with the `CHROME`
@@ -160,7 +194,7 @@ style.css               shared styles
 chomp/index.html        Neon Chomp page        brawler/index.html   Borough Brawl page
 src/
   home.js               home screen: previews, best scores
-  shared/               sound synth, saved-settings helper
+  shared/               sound synth, saved-settings helper, controllers (gamepad.js)
   chomp/                Neon Chomp: main, config, maze, entity, player, glitches,
                         render, fx, audio, ui, input, storage
   brawler/              Borough Brawl:

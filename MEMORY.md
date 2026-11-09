@@ -49,3 +49,6 @@ Durable decisions, with the reason. Newest at the bottom.
 | 2026-11-09 | Code-drawn art has a ceiling; hand-drawn sprite sheets are the path past it, but need the no-assets rule relaxed | Recorded so it's an explicit decision, not drift |
 | 2026-11-09 | Public repo is `willatwork-git/Tiago-testing`; the kids' concept art (`temp-concepts/`) and the ChatGPT review (`feedback/`) are committed in it | Will committed them; anything in the repo is public |
 | 2026-11-09 | README "Getting started" is the canonical how-to-run for outsiders (every OS + troubleshooting + Pages) | A friend should get from zero to playing without asking |
+| 2026-11-09 | Controllers via the Gamepad API, mapped by button *position* (standard layout); labels switch ✕□△ vs AXY by controller id | Chrome reports DualSense (Mac) and Xbox (PC) identically, so one mapping serves both |
+| 2026-11-09 | Brawler pad: □ attack, ✕ jump, △ special, R1/○ tag, hold R2 run; Chomp pad: ✕/□ dash | Matches genre habits (Shredder's Revenge style: square attack, cross jump) |
+| 2026-11-09 | Controller tests inject a virtual pad (`tests/gamepad-e2e.mjs`) | No physical pad in headless Chrome; a real-pad check is still a manual step |

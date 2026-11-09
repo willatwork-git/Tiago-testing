@@ -158,6 +158,10 @@ hand-drawn sprite sheets (see TODO B2).
 | M | Sound on/off |
 | Enter | Start / retry |
 
+**Controller (PS5 / Xbox):** stick or d-pad move · hold R2/RT run (or double-tap) · □/X attack ·
+✕/A jump · △/Y special · R1/RB or ○/B tag · Options/Menu pause · Create/View back to arcade
+(paused). Rumble on hits taken, finishers, the Depth Charge shockwave and a hero KO.
+
 ## Tech
 
 - Same rules as the arcade: vanilla JS, Canvas 2D, Web Audio, no asset files.

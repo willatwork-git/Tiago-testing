@@ -9,10 +9,12 @@ import { createInput } from './input.js';
 import { createFx } from './fx.js';
 import { createSounds } from './sounds.js';
 import { loadBest, saveBest, loadMuted, saveMuted } from './storage.js';
+import { createGamepad } from '../shared/gamepad.js';
 
 const STEP = 1 / 60;
 
-const input = createInput();
+const pad = createGamepad();
+const input = createInput(window, pad);
 const renderer = new Renderer(document.getElementById('game'));
 const audio = createSounds(loadMuted());
 const fx = createFx();
@@ -58,8 +60,39 @@ function recordScore() {
   }
 }
 
+/** On-screen prompts for whatever the player is holding: keyboard, PlayStation or Xbox. */
+function hints() {
+  if (!pad.connected) {
+    return {
+      pad: null, start: 'ENTER', tag: 'SPACE', pause: 'P', quit: 'Q',
+      lines: [
+        'MOVE  arrows/WASD     RUN  tap → →     ATTACK  J/Z     JUMP  K/X',
+        'SPECIAL  L/C  (throw · in the air: dive)     TAG PARTNER  Space',
+      ],
+    };
+  }
+  const L = pad.label;
+  return {
+    pad: `${pad.kind === 'playstation' ? 'PLAYSTATION' : 'XBOX'} CONTROLLER CONNECTED`,
+    start: L('south'), tag: L('r1'), pause: L('start'), quit: L('select'),
+    lines: [
+      `MOVE  stick / d-pad     RUN  hold ${L('r2')}     ATTACK  ${L('west')}     JUMP  ${L('south')}`,
+      `SPECIAL  ${L('north')}  (throw · in the air: dive)     TAG PARTNER  ${L('r1')}     PAUSE  ${L('start')}`,
+    ],
+  };
+}
+
+// Rumble for the hits that matter.
+function rumbleFor(ev) {
+  if (ev.type === 'hit' && ev.toHero) pad.rumble(0.7, 0.4, ev.heavy ? 260 : 140);
+  else if (ev.type === 'hit' && ev.heavy) pad.rumble(0.3, 0.6, 90);
+  else if (ev.type === 'quake') pad.rumble(0.9, 0.5, 240);
+  else if (ev.type === 'ko' && ev.side === 'hero') pad.rumble(1, 1, 450);
+}
+
 function step(dt) {
   app.time += dt;
+  input.poll();
   const g = app.game;
 
   if (input.pressed('mute')) {
@@ -94,6 +127,7 @@ function step(dt) {
   for (const ev of app.game.events) {
     audio.play(ev);
     fx.handle(ev, app.game);
+    rumbleFor(ev);
   }
   app.game.events = [];
   if (!app.paused) fx.update(dt);
@@ -123,6 +157,7 @@ window.addEventListener('pagehide', recordScore);
 const params = new URLSearchParams(location.search);
 if (params.has('debug')) {
   window.app = app;
+  window.pad = pad;
   Object.defineProperty(window, 'game', { get: () => app.game });
 }
 if (params.has('play')) newGame();
@@ -137,7 +172,7 @@ function frame(now) {
     step(STEP);
     acc -= STEP;
   }
-  renderer.draw({ ...app, fx, muted: audio.muted });
+  renderer.draw({ ...app, fx, muted: audio.muted, hints: hints() });
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

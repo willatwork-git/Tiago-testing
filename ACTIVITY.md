@@ -2,6 +2,26 @@
 
 Newest at the top.
 
+## 2026-11-09 — Controllers: PS5 on Mac, Xbox on PC
+
+- **New `src/shared/gamepad.js`:** reads the Gamepad API and maps buttons by position (Chrome uses
+  the same standard layout for DualSense and Xbox). It detects PlayStation vs Xbox from the
+  controller id for the labels, gives edge-detected presses and stick/d-pad direction, and
+  rumbles where the controller supports it.
+- **Borough Brawl:**
+  - □ attack, ✕ jump, △ special, R1/○ tag, hold R2 (or double-tap) to run
+  - Options pauses; Create goes back to the arcade
+  - analogue walking
+  - every prompt (title, HUD tag, pause, end screens) shows the right buttons
+  - rumble on hits taken, finishers, the shockwave and a KO
+- **Neon Chomp:** stick/d-pad steer, ✕/□ dash, Options pause, Create quit; on the menu, d-pad
+  switches difficulty and ✕ plays; prompts and the menu hint follow the controller.
+- **Home:** d-pad or stick to choose, ✕/A to play.
+- **Tests:** new `tests/gamepad-e2e.mjs` (28 checks) injects a virtual DualSense and a virtual
+  Xbox controller. All five suites pass. `cdp.mjs` no longer clears an earlier failure when a
+  second browser finishes.
+- **Not verified:** a physical controller. Needs a real try with the PS5 on the MacBook.
+
 ## 2026-11-09 — Public repo docs
 
 - **README:** rewrote the setup section as "Getting started":

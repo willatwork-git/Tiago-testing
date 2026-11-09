@@ -10,6 +10,7 @@ import { Player } from './player.js';
 import { createGlitches } from './glitches.js';
 import { Renderer } from './render.js';
 import { createInput } from './input.js';
+import { createGamepad } from '../shared/gamepad.js';
 import { CONFIG, DIFFICULTY } from './config.js';
 import { createMenu } from './ui.js';
 import { createAudio } from './audio.js';
@@ -21,7 +22,8 @@ import {
 
 const STEP = 1 / 60; // fixed update rate, independent of display refresh
 
-const input = createInput();
+const pad = createGamepad();
+const input = createInput(window, pad);
 const renderer = new Renderer(document.getElementById('game'));
 const audio = createAudio(loadMuted());
 
@@ -233,6 +235,23 @@ function updatePlaying(dt) {
   checkCollisions();
 }
 
+/** On-screen prompts for keyboard or the controller in hand (✕ on PlayStation, A on Xbox). */
+let lastPad = null;
+function hints() {
+  const now = pad.connected ? pad.kind : null;
+  if (now !== lastPad) {
+    lastPad = now;
+    const el = document.getElementById('controls-hint');
+    if (el) {
+      el.textContent = now
+        ? `Stick / d-pad move · ${pad.label('south')} dash · ${pad.label('start')} pause · ◀ ▶ difficulty · ${pad.label('south')} play`
+        : 'Arrows / WASD move · Space dash · P pause · M sound';
+    }
+  }
+  if (!now) return { move: 'ARROWS / WASD', start: 'ENTER', pause: 'P', quit: 'Q' };
+  return { move: 'STICK / D-PAD', start: pad.label('south'), pause: pad.label('start'), quit: pad.label('select') };
+}
+
 function pause() {
   if (game.state !== 'playing' && game.state !== 'ready') return;
   game.pausedFrom = game.state;
@@ -251,6 +270,8 @@ function updateReady() {
 }
 
 function update(dt) {
+  input.poll();
+  game.hints = hints();
   game.time += dt;
   game.stateTime += dt;
 
@@ -263,8 +284,16 @@ function update(dt) {
   if (input.take('KeyM')) setMuted(!audio.muted);
 
   switch (game.state) {
-    case 'title':
+    case 'title': {
+      // Controller: left/right switches difficulty on the menu.
+      const d = input.padDir();
+      if (d?.x) {
+        const keys = Object.keys(DIFFICULTY);
+        const next = keys[(keys.indexOf(game.difficulty) + d.x + keys.length) % keys.length];
+        document.querySelector(`input[name=difficulty][value=${next}]`)?.click();
+      }
       if (input.take('Enter')) newGame();
+    }
       break;
     case 'ready':
       updateReady();
@@ -321,7 +350,10 @@ window.addEventListener('pagehide', () => saveHighScore(game.difficulty, game.hi
 
 // Dev aids: ?play skips the title screen; ?debug exposes the game state as window.game.
 const params = new URLSearchParams(location.search);
-if (params.has('debug')) window.game = game;
+if (params.has('debug')) {
+  window.game = game;
+  window.pad = pad;
+}
 if (params.has('play')) newGame();
 else setState('title');
 
