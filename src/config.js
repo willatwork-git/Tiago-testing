@@ -32,3 +32,25 @@ export const CONFIG = {
 
   score: { pellet: 10, power: 50, glitch: 200 },
 };
+
+// Difficulty modifiers, applied on top of the level curve above.
+export const DIFFICULTY = {
+  normal: {
+    label: 'Normal',
+    hint: 'Steady pace. You have room to breathe.',
+    lives: 3,
+    glitchSpeedBonus: 0, // tiles/sec added to Glitch speed
+    frightScale: 1, // × Overcharge length
+    releaseScale: 1, // × time before Glitches leave the house
+    scatterScale: 1, // × length of scatter (breather) phases
+  },
+  hard: {
+    label: 'Hard',
+    hint: 'Glitches nearly match your speed, leave the house sooner, rest less. Shorter Overcharge.',
+    lives: 3,
+    glitchSpeedBonus: 0.8,
+    frightScale: 0.6,
+    releaseScale: 0.4,
+    scatterScale: 0.5,
+  },
+};

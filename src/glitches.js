@@ -42,7 +42,7 @@ export class Glitch extends Mover {
       this.state = 'leaving';
     }
 
-    let speed = CONFIG.glitchSpeed(game.level);
+    let speed = CONFIG.glitchSpeed(game.level) + game.diff.glitchSpeedBonus;
     if (this.state === 'eaten') speed = CONFIG.eyesSpeed;
     else if (this.state === 'leaving') speed *= CONFIG.leavingMult;
     else if (this.frightened) speed *= CONFIG.frightMult;
@@ -123,9 +123,9 @@ export class Glitch extends Mover {
   }
 }
 
-export function createGlitches(maze, level) {
+export function createGlitches(maze, level, diff) {
   const { door, house } = maze.spawn;
-  const release = CONFIG.release.map((t) => Math.max(0, t - (level - 1) * CONFIG.releaseShrink));
+  const release = CONFIG.release.map((t) => Math.max(0, t - (level - 1) * CONFIG.releaseShrink) * diff.releaseScale);
   return [
     new Glitch(GLITCH_DEFS[0], 0, door, DIRS.left, 'active', 0),
     new Glitch(GLITCH_DEFS[1], 1, house[1], DIRS.up, 'house', release[1]),

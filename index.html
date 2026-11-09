@@ -8,6 +8,35 @@
 </head>
 <body>
   <canvas id="game" aria-label="Neon Chomp game"></canvas>
+
+  <!-- Title-screen menu. The canvas draws the logo and parade above it. -->
+  <div id="menu" class="menu" hidden>
+    <section>
+      <h2>Difficulty</h2>
+      <div class="segmented" role="radiogroup" aria-label="Difficulty" id="difficulty"></div>
+      <p class="hint" id="difficulty-hint"></p>
+    </section>
+
+    <section>
+      <h2>Body colour</h2>
+      <div class="swatches" id="body-swatches" role="radiogroup" aria-label="Body colour"></div>
+    </section>
+
+    <section>
+      <h2>
+        Glow colour
+        <label class="toggle"><input type="checkbox" id="glow-match"> match body</label>
+      </h2>
+      <div class="swatches" id="glow-swatches" role="radiogroup" aria-label="Glow colour"></div>
+    </section>
+
+    <p class="warning" id="clash" hidden></p>
+
+    <button type="button" class="play" id="play">Play <kbd>Enter</kbd></button>
+    <p class="hint" id="menu-high"></p>
+    <p class="hint">Arrows / WASD move · P pause · Q quit to menu</p>
+  </div>
+
   <script type="module" src="src/main.js"></script>
 </body>
 </html>

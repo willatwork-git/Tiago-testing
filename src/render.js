@@ -322,7 +322,8 @@ export class Renderer {
     const y = oy - ts * 1.1;
     const size = ts * 0.75;
     this.text(`SCORE ${game.score}`, ox + ts * 0.3, y, { size, align: 'left' });
-    this.text(`HIGH ${game.high}`, ox + bw / 2, y, { size, colour: PALETTE.dim });
+    const hard = game.difficulty === 'hard';
+    this.text(`${hard ? 'HARD  ' : ''}HIGH ${game.high}`, ox + bw / 2, y, { size, colour: hard ? PALETTE.danger : PALETTE.dim });
     this.text(`LV ${game.level}`, ox + bw - ts * 0.3, y, { size, align: 'right' });
 
     // Spare lives as small chompers, just left of the level number.
@@ -341,39 +342,34 @@ export class Renderer {
       this.text('READY!', cx, midY, { size: ts * 0.9, colour: PALETTE.ready, glow: ts * 0.5 });
     } else if (game.state === 'gameOver') {
       this.text('GAME OVER', cx, midY, { size: ts * 0.9, colour: PALETTE.danger, glow: ts * 0.5 });
-      if (game.stateTime > 1) this.text('ENTER TO CONTINUE', cx, oy + bh + ts * 0.2, { size: ts * 0.5, colour: PALETTE.dim });
+      if (game.stateTime > 1) this.text('ENTER FOR MENU', cx, oy + bh + ts * 0.2, { size: ts * 0.5, colour: PALETTE.dim });
     } else if (game.state === 'paused') {
       const c = this.ctx;
       c.fillStyle = 'rgba(5, 3, 15, 0.7)';
       c.fillRect(0, 0, this.w, this.h);
       this.text('PAUSED', cx, oy + bh / 2, { size: ts * 1.2, glow: ts * 0.6 });
-      this.text('P TO RESUME', cx, oy + bh / 2 + ts * 1.3, { size: ts * 0.55, colour: PALETTE.dim });
+      this.text('P  RESUME     Q  QUIT TO MENU', cx, oy + bh / 2 + ts * 1.3, { size: ts * 0.55, colour: PALETTE.dim });
     }
   }
 
   drawTitle(game) {
     const { w, h } = this;
-    const unit = Math.min(w / 16, h / 12);
+    const unit = Math.min(w / 16, h / 14);
     const cx = w / 2;
     const t = game.time;
 
-    this.text('NEON CHOMP', cx, h * 0.28, { size: unit * 1.15, colour: '#ff5fd2', glow: unit * 0.6, weight: 800 });
-    this.text('a maze-chase of light', cx, h * 0.28 + unit * 0.95, { size: unit * 0.35, colour: PALETTE.dim, weight: 500 });
+    this.text('NEON CHOMP', cx, h * 0.11, { size: unit * 1.15, colour: '#ff5fd2', glow: unit * 0.6, weight: 800 });
+    this.text('a maze-chase of light', cx, h * 0.11 + unit * 0.9, { size: unit * 0.35, colour: PALETTE.dim, weight: 500 });
 
-    // Parade: the chomper runs right, the Glitches chase. Loops across the screen.
+    // Parade: the chomper (in the player's chosen colours — the live preview) runs
+    // right with the Glitches in pursuit. Starts on-screen, then loops.
     const span = w + unit * 8;
-    const lead = ((t * unit * 3) % span) - unit * 2;
-    const y = h * 0.52;
-    this.chomper(lead, y, unit * 0.4, DIRS.right, 0.06 + 0.2 * Math.abs(Math.sin(t * 14)), game.colours);
+    const lead = ((t * unit * 3 + w * 0.6) % span) - unit * 2;
+    const y = h * 0.27;
+    this.chomper(lead, y, unit * 0.45, DIRS.right, 0.06 + 0.2 * Math.abs(Math.sin(t * 14)), game.colours);
     GLITCH_DEFS.forEach((def, k) => {
       this.glitch(lead - unit * (1.6 + k * 1.1), y, unit * 0.4, def.shape, def.colour, DIRS.right);
     });
-
-    if (Math.floor(t * 2) % 2 === 0) {
-      this.text('PRESS ENTER TO PLAY', cx, h * 0.7, { size: unit * 0.45, colour: PALETTE.ready, glow: unit * 0.3 });
-    }
-    this.text('ARROWS / WASD  move     P  pause', cx, h * 0.8, { size: unit * 0.3, colour: PALETTE.dim, weight: 500 });
-    if (game.high > 0) this.text(`HIGH SCORE ${game.high}`, cx, h * 0.87, { size: unit * 0.32, colour: PALETTE.text });
   }
 }
 

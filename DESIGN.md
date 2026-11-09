@@ -55,11 +55,26 @@ home and respawn.
 
 ## Character colour picker
 
-- On the title screen: a live preview of the player, animated, chomping.
-- **8 preset swatches**, plus a custom `<input type="color">`.
+- On the title menu (an HTML panel over the canvas). The title parade doubles as the live preview.
+- **8 preset swatches** (lime, chartreuse, jade, mint, lemon, lavender, peach, silver), each
+  checked to stay clear of every enemy colour, plus a custom `<input type="color">`.
 - Two slots: **body** and **glow/trail**, with a "match body" toggle that's on by default.
 - Saved to `localStorage`, so it's restored next visit.
-- Guard: warn (don't block) if the chosen colour is close to a Glitch colour or to frightened blue.
+- Guard: warn (don't block) if the body colour is close to a Glitch, frightened blue, the walls or
+  the white flash, or is too dark to see.
+
+## Difficulty
+
+Chosen on the title menu. It's remembered between visits, and each difficulty keeps its own high score.
+
+| | Normal | Hard |
+|---|---|---|
+| Glitch speed | level curve | +0.8 tiles/s (level 1 is almost your speed) |
+| Overcharge length | full | ×0.6 |
+| Time before Glitches leave the house | full | ×0.4 |
+| Scatter (breather) phases | full | ×0.5 |
+
+All values are in `DIFFICULTY` in `src/config.js`.
 
 ## Controls
 
@@ -67,8 +82,9 @@ home and respawn.
 |---|---|
 | Arrows / WASD | Move |
 | Space | Dash |
-| P / Esc | Pause |
-| Enter | Start / confirm |
+| P / Esc | Pause / resume |
+| Q | Quit to menu (while paused, or on game over) |
+| Enter | Play / continue |
 
 Touch and gamepad come later.
 

@@ -27,10 +27,10 @@
 - [x] Collision → lose a life → reset positions
 
 ### M5 Colour picker
-- [ ] Title screen with animated player preview
-- [ ] 8 presets + custom colour input, body + glow slots, "match body" toggle
-- [ ] Persist to `localStorage`
-- [ ] Soft warning when a colour clashes with a Glitch or frightened blue
+- [x] Title screen with animated player preview
+- [x] 8 presets + custom colour input, body + glow slots, "match body" toggle
+- [x] Persist to `localStorage`
+- [x] Soft warning when a colour clashes with a Glitch or frightened blue
 
 ### M6 Modern twists + juice
 - [ ] Dash (Space, cooldown ring)
@@ -42,6 +42,8 @@
 - [x] Lives (3), level speed-up curve, shorter Overcharge per level *(first pass; tune in playtest)*
 - [x] High score in `localStorage`
 - [x] Pause screen, game-over screen
+- [x] Quit to menu (Q while paused or on game over)
+- [x] Difficulty: Normal / Hard, separate high score each *(Hard values need playtest)*
 - [ ] Playtest pass: tune speeds and timers
 
 ## Later — cool future ideas

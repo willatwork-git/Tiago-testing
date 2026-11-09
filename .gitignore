@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# iCloud sync conflict copies (e.g. "main 2.js")
+* 2.*
+* 2
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Claude Code local (personal) settings
+.claude/settings.local.json
+
+# Tooling, in case any is added later
+node_modules/
+dist/
+*.log
+.env
+.env.*

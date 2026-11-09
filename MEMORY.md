@@ -16,3 +16,7 @@ Durable decisions, with the reason. Newest at the bottom.
 | 2026-11-09 | Glitches entering/leaving the house follow precomputed shortest paths, not greedy targeting | Greedy targeting can loop; shortest paths can't |
 | 2026-11-09 | `?play` in the URL skips the title screen | Dev aid for quick testing and headless screenshots |
 | 2026-11-09 | Default player colour is lime `#7cff4f` | Distinct from all four Glitches, frightened blue and the violet walls |
+| 2026-11-09 | Title menu is DOM (`src/ui.js`), not canvas | Native colour picker and keyboard focus for free |
+| 2026-11-09 | Difficulty = Normal / Hard via modifiers in `DIFFICULTY` (config.js); separate high score per difficulty | Requested; a Hard score shouldn't compete with Normal ones |
+| 2026-11-09 | Quit to menu = Q while paused or on game over (not mid-play) | Stops an accidental keypress from ending a run |
+| 2026-11-09 | Space no longer starts the game | Reserved for dash (M6) |

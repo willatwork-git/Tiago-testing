@@ -9,13 +9,18 @@ import { Player } from './player.js';
 import { createGlitches } from './glitches.js';
 import { Renderer } from './render.js';
 import { createInput } from './input.js';
-import { CONFIG } from './config.js';
-import { loadHighScore, saveHighScore, loadColours } from './storage.js';
+import { CONFIG, DIFFICULTY } from './config.js';
+import { createMenu } from './ui.js';
+import {
+  loadHighScore, saveHighScore, loadColours, saveColours, loadDifficulty, saveDifficulty,
+} from './storage.js';
 
 const STEP = 1 / 60; // fixed update rate, independent of display refresh
 
 const input = createInput();
 const renderer = new Renderer(document.getElementById('game'));
+
+const difficulty = loadDifficulty(Object.keys(DIFFICULTY));
 
 const game = {
   state: 'title',
@@ -27,7 +32,9 @@ const game = {
   score: 0,
   lives: CONFIG.lives,
   level: 1,
-  high: loadHighScore(),
+  difficulty,
+  diff: DIFFICULTY[difficulty],
+  high: loadHighScore(difficulty),
   colours: loadColours(),
   mode: 'scatter',
   modeIndex: 0,
@@ -37,14 +44,40 @@ const game = {
   lifeTime: 0,
 };
 
+const menu = createMenu({
+  colours: game.colours,
+  difficulty: game.difficulty,
+  onColours(colours, save) {
+    game.colours = colours;
+    if (save) saveColours(colours);
+  },
+  onDifficulty(key) {
+    game.difficulty = key;
+    game.diff = DIFFICULTY[key];
+    game.high = loadHighScore(key);
+    saveDifficulty(key);
+    menu.show(game.high);
+  },
+  onPlay() {
+    if (game.state === 'title') newGame();
+  },
+});
+
 function setState(state) {
   game.state = state;
   game.stateTime = 0;
+  if (state === 'title') menu.show(game.high);
+  else menu.hide();
+}
+
+function quitToMenu() {
+  saveHighScore(game.difficulty, game.high);
+  setState('title');
 }
 
 function newGame() {
   game.score = 0;
-  game.lives = CONFIG.lives;
+  game.lives = game.diff.lives;
   game.level = 1;
   startLevel();
 }
@@ -58,7 +91,7 @@ function startLevel() {
 
 function resetActors() {
   game.player = new Player(game.maze.spawn.player);
-  game.glitches = createGlitches(game.maze, game.level);
+  game.glitches = createGlitches(game.maze, game.level, game.diff);
   game.mode = CONFIG.modes[0][0];
   game.modeIndex = 0;
   game.modeTime = 0;
@@ -78,12 +111,12 @@ function onPlayerTile(x, y) {
   if (eaten === '.') addScore(CONFIG.score.pellet);
   if (eaten === 'o') {
     addScore(CONFIG.score.power);
-    game.frightTime = CONFIG.frightTime(game.level);
+    game.frightTime = CONFIG.frightTime(game.level) * game.diff.frightScale;
     game.eatChain = 0;
     for (const gl of game.glitches) gl.frighten(game.maze);
   }
   if (eaten && game.maze.pellets === 0) {
-    saveHighScore(game.high);
+    saveHighScore(game.difficulty, game.high);
     setState('levelClear');
   }
 }
@@ -96,7 +129,9 @@ function updateModes(dt) {
     return;
   }
   game.modeTime += dt;
-  if (game.modeTime >= CONFIG.modes[game.modeIndex][1]) {
+  const [mode, length] = CONFIG.modes[game.modeIndex];
+  const scaled = mode === 'scatter' ? length * game.diff.scatterScale : length;
+  if (game.modeTime >= scaled) {
     game.modeIndex++;
     game.modeTime = 0;
     game.mode = CONFIG.modes[game.modeIndex][0];
@@ -144,10 +179,11 @@ function update(dt) {
     if (game.state === 'playing') setState('paused');
     else if (game.state === 'paused') setState('playing');
   }
+  if (input.take('KeyQ') && (game.state === 'paused' || game.state === 'gameOver')) quitToMenu();
 
   switch (game.state) {
     case 'title':
-      if (input.take('Enter') || input.take('Space')) newGame();
+      if (input.take('Enter')) newGame();
       break;
     case 'ready':
       if (game.stateTime >= CONFIG.readyTime) setState('playing');
@@ -161,7 +197,7 @@ function update(dt) {
           resetActors();
           setState('ready');
         } else {
-          saveHighScore(game.high);
+          saveHighScore(game.difficulty, game.high);
           setState('gameOver');
         }
       }
@@ -173,7 +209,7 @@ function update(dt) {
       }
       break;
     case 'gameOver':
-      if (game.stateTime > 1 && input.take('Enter')) setState('title');
+      if (game.stateTime > 1 && input.take('Enter')) quitToMenu();
       break;
   }
 
@@ -187,6 +223,7 @@ window.addEventListener('blur', () => {
 
 // Dev aid: ?play skips the title screen.
 if (new URLSearchParams(location.search).has('play')) newGame();
+else setState('title');
 
 let last = performance.now();
 let acc = 0;
