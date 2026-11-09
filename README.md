@@ -6,7 +6,7 @@ HTML, CSS and JavaScript. All art is drawn in code and all sound is synthesised.
 | Game | What it is |
 |---|---|
 | **Neon Chomp** | Maze chase. Clear the maze of light, dodge four Glitches, grab a power cell to Overcharge and bite back. Pick your colours and difficulty. |
-| **Borough Brawl** | Side-scrolling tag-team street brawler in pixel-art New York. A sword-swinging shark and a lightning-fast partner, one button to swap mid-fight, a street gang to clear off the block. *(Prototype: one stage.)* |
+| **Borough Brawl** | Side-scrolling tag-team street brawler in detailed pixel-art New York. A sword-swinging shark and a lightning-fast partner, one button to swap mid-fight, a street gang to clear off the block. *(Prototype: one stage.)* |
 
 ## Play it
 

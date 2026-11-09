@@ -1,7 +1,7 @@
 # Borough Brawl — Design
 
 *Working title (was "Nebula Knockout" until the setting moved to New York). Side-scrolling
-tag-team beat 'em up. v0.2, 2026-11-09.*
+tag-team beat 'em up. v0.3, 2026-11-09.*
 
 ## Pitch
 
@@ -54,12 +54,12 @@ design is translated into the code-drawn rig, keeping what makes him recognisabl
 
 | Concept art | In game |
 |---|---|
-| Shark head, long snout, toothy grin, dorsal fin | Custom head shape with snout, white jaw, a row of teeth, eye, fin |
+| Shark head, long snout, toothy grin, dorsal fin | Counter-shaded head (dark top, pale jaw), a row of teeth, eye with glint, gill slits, two-tone fin |
 | Massive grey arms, short legs | The widest build in the game; legs at 80% length |
-| Silver leaf armour with gold trim | Silver breastplate with a gold V, silver pauldron with gold rim |
+| Silver leaf armour with gold trim | Shaded silver breastplate with gold leaf lines and a green gem, big silver pauldron with gold rim |
 | Gold bracers and boots | Gold forearm band, gold boots |
 | Green tabard over chainmail | Green tabard over the hips |
-| Long ornate sword | A sword with a gold crossguard, held in the front hand and following the forearm, so every swing reads |
+| Long ornate sword | A tapered steel blade with a bright edge and fuller, a gold crossguard with a green gem; it follows the forearm, so every swing reads |
 
 If the kids want to go further, they could draw him as a small pixel sprite sheet (see TODO B2).
 
@@ -91,29 +91,57 @@ If the kids want to go further, they could draw him as a small pixel sprite shee
   until the wave is cleared, then **GO ▶** flashes. Crosswalks on the road mark the zones.
 - Clearing the last zone is **BLOCK CLEARED!**
 
-## Art direction: pixel-art New York at dusk
+## Art direction: detailed pixel-art New York, late afternoon
 
-Deliberately unlike Neon Chomp: no neon glow and no vector look.
+**Reference:** the look of modern pixel-art brawlers (Marvel Cosmic Invasion, Shredder's Revenge):
+- big, muscular, cel-shaded characters with dark outlines
+- detailed, weathered city backdrops
+- punchy comic-book hit effects
 
-- **Palette:**
-  - a dusk sky, purple to orange
-  - brick reds and brownstone browns
-  - warm lit windows and grey concrete
-  - dark asphalt with a double yellow line
-- **Layers:**
-  - a distant skyline with art-deco spires (slow parallax)
-  - the block itself, scrolling with the road:
-    - brick and brownstone fronts with fire escapes and roof water towers
-    - shops with signs and striped awnings (bodega, deli, laundry, pizza…)
-    - stoops and graffiti
-  - the sidewalk, with streetlamps, hydrants and trash cans
-  - the **road**, which is the floor you fight on: lane lines, crosswalks, cracks, manholes
-    with rising steam
-- **Pixel edges:** fighters, projectiles and sparks are drawn to their own layer, and its edges are
-  snapped to fully on or off. Combined with whole-step scaling and no smoothing, that reads as
-  real pixel art.
-- **HUD:** chunky arcade style. Bold type with a hard drop shadow, boxed panels and segmented
-  health bars.
+Our own characters, buildings and signs throughout. Deliberately unlike Neon Chomp: no neon
+glow, no vector look.
+
+**Characters:**
+- About **a third of the screen tall** (scale ~1.5; Bruisers ~1.75).
+- Every body part is a **solid tapered shape**:
+  - a shaped torso (shoulders, chest, waist, hips)
+  - upper arms, forearms and fists
+  - thighs, shins and boots
+  - a neck and a head with a profile face
+- **Three-tone cel shading** from one light at the upper left: a lavender-leaning shadow, the
+  base colour, and a highlight.
+- A dark **outline** under everything.
+- **Outfit detail per character:** armour trim, jacket zips and studs, tank-top straps, chains,
+  belts, visors, scarves.
+- **Gang variants** (jacket, hair and skin colours), so a wave isn't a row of clones.
+
+**Backdrop:**
+- **Sky:** a late-afternoon gradient with pixel clouds, and a hazy distant skyline.
+- **The block** (stone, brick and brownstone fronts):
+  - per-brick colour, cornices with dentils, weather streaks
+  - recessed windows with reflections, curtains and AC units
+  - fire escapes casting shadows, roof water towers
+- **Ground floors:** shop signs, striped awnings, glass shopfronts with shelves and
+  reflections, roll-down shutters with graffiti, doors, posters.
+- **Sidewalk:** slabs in perspective with cracks; trees, planters, benches, news boxes,
+  hydrants, trash cans and lamps.
+- **The road** (where you fight): aggregate texture, patches and tar seams, a faded double
+  yellow, cracks, potholes with rubble, crosswalks, steaming manholes.
+
+**Feedback:**
+- comic **impact bursts** on hits
+- floating **damage numbers**
+- a **×N HITS** combo counter
+- **speed lines** behind running attacks and dives
+
+**Pixel edges:** fighters and effects go on their own layer, and its edges are snapped fully on
+or off. Combined with whole-step scaling and no smoothing, they read as pixel art.
+
+**HUD:** chunky arcade style. Bold type with a hard drop shadow, boxed panels and segmented bars.
+
+**Honest limit:** the reference games are hand-drawn by professional pixel artists. Ours are drawn
+in code, which gets the size, shading and detail close but not hand-painted. The next step up is
+hand-drawn sprite sheets (see TODO B2).
 
 ## Controls
 

@@ -1,4 +1,4 @@
-// Borough Brawl drawing: a dusk New York street in pixel art.
+// Borough Brawl drawing: a New York street in late-afternoon light, in pixel art.
 //
 // The world is drawn at 480 × 270 and scaled up without smoothing. Fighters, projectiles and
 // sparks go on their own layer whose edges are hardened (alpha snapped to on/off), so they read
@@ -10,6 +10,7 @@ import { HEROES, ENEMIES } from './fighters.js';
 import { STAGES } from './stage.js';
 import { drawRig, POSES, walkPose } from './rig.js';
 import { activeHero, partnerHero, phaseOf } from './game.js';
+import { Scenery } from './scenery.js';
 
 const FONT = '"Arial Black", "Helvetica Neue", Arial, sans-serif';
 const P = {
@@ -17,18 +18,6 @@ const P = {
   yellow: '#ffd23f', red: '#d6402b', blue: '#5fb3d9', green: '#39d353',
   sidewalk: '#8d8a87', joint: '#75726f', curb: '#bdb8b0', asphalt: '#3b3a40',
 };
-const SIDEWALK_TOP = FLOOR.top - 20;
-const SIGNS = ['DELI', 'PIZZA', 'BODEGA', 'LAUNDRY', '24 HR', 'SUBS', 'CAFE', 'TATTOO', 'ARCADE', 'NOODLES'];
-const TAG_COLOURS = ['#ff4d6d', '#4dd2ff', '#ffd23f', '#7cff4f', '#c77dff', '#ff9f1c'];
-
-/** Small seeded random, so the street is identical every visit. */
-function seeded(seed) {
-  return () => {
-    seed = (seed * 1664525 + 1013904223) >>> 0;
-    return seed / 2 ** 32;
-  };
-}
-
 function canvas(w, h, read = false) {
   const cv = document.createElement('canvas');
   cv.width = Math.ceil(w);
@@ -43,10 +32,7 @@ export class Renderer {
     [this.low, this.lc] = canvas(W, H);
     [this.actors, this.ac] = canvas(W, H, true);
 
-    const stage = STAGES[0];
-    this.skyline = this.buildSkyline(stage);
-    [this.street, this.manholes] = this.buildStreet(stage);
-    this.road = this.buildRoad(stage, this.manholes);
+    this.scenery = new Scenery(STAGES[0]);
 
     window.addEventListener('resize', () => this.resize());
     this.resize();
@@ -74,288 +60,8 @@ export class Renderer {
     this.gy = Math.round((h - this.gh) / 2);
   }
 
-  // ------------------------------------------------------------ prerendered backdrop
-
-  /** Distant Manhattan-style skyline against the dusk sky (slow parallax). */
-  buildSkyline(stage) {
-    const [cv, g] = canvas((stage.length - W) * 0.25 + W + 40, SIDEWALK_TOP);
-    const r = seeded(3);
-    for (let x = -10; x < cv.width;) {
-      const w = 12 + r() * 26;
-      const h = 40 + r() * 70;
-      const top = SIDEWALK_TOP - h;
-      g.fillStyle = '#3a2741';
-      g.fillRect(Math.round(x), Math.round(top), Math.round(w), Math.round(h));
-      if (r() < 0.15) {
-        // An art-deco spire.
-        g.fillRect(Math.round(x + w / 2 - 3), Math.round(top - 16), 6, 16);
-        g.fillRect(Math.round(x + w / 2 - 1), Math.round(top - 30), 2, 14);
-      }
-      g.fillStyle = 'rgba(255, 207, 112, 0.35)';
-      for (let wy = top + 4; wy < SIDEWALK_TOP - 4; wy += 5) {
-        for (let wx = x + 2; wx < x + w - 2; wx += 4) if (r() < 0.12) g.fillRect(Math.round(wx), Math.round(wy), 1, 2);
-      }
-      x += w + r() * 3;
-    }
-    return cv;
-  }
-
-  /** The block: brick and brownstone fronts, shops, fire escapes, graffiti, sidewalk, lamps. */
-  buildStreet(stage) {
-    const [cv, g] = canvas(stage.length + W + 40, FLOOR.top);
-    const r = seeded(21);
-    const pick = (list) => list[Math.floor(r() * list.length)];
-    const R = Math.round;
-
-    for (let x = -20; x < cv.width;) {
-      const w = R(90 + r() * 80);
-      const top = R(18 + r() * 70);
-      const kind = pick(['brick', 'brick', 'brownstone', 'shop']);
-      const base = kind === 'brownstone' ? '#6b4a3a' : pick(['#7a3b2e', '#8a4433', '#6e3a30']);
-      const mortar = kind === 'brownstone' ? '#5a3d30' : '#5a2a22';
-
-      g.fillStyle = base;
-      g.fillRect(x, top, w, SIDEWALK_TOP - top);
-      if (kind !== 'brownstone') {
-        // Brick courses.
-        g.fillStyle = mortar;
-        for (let by = top + 3; by < SIDEWALK_TOP; by += 4) {
-          g.fillRect(x, by, w, 1);
-          for (let bx = x + ((by / 4) % 2 ? 0 : 4); bx < x + w; bx += 8) g.fillRect(bx, by - 3, 1, 3);
-        }
-      }
-      // Cornice.
-      g.fillStyle = '#2e2128';
-      g.fillRect(x - 2, top - 3, w + 4, 4);
-      g.fillStyle = '#b8a48f';
-      g.fillRect(x - 2, top - 3, w + 4, 1);
-
-      // Windows, warm and lit or dark.
-      const groundTop = SIDEWALK_TOP - 34;
-      for (let wy = top + 10; wy < groundTop - 12; wy += 20) {
-        for (let wx = x + 7; wx < x + w - 12; wx += 16) {
-          g.fillStyle = '#d8cfc0';
-          g.fillRect(wx - 1, wy - 1, 10, 14);
-          g.fillStyle = r() < 0.4 ? '#ffcf70' : '#2b2633';
-          g.fillRect(wx, wy, 8, 12);
-          g.fillStyle = '#d8cfc0';
-          g.fillRect(wx, wy + 5, 8, 1);
-        }
-      }
-
-      // Fire escape on the brick buildings.
-      if (kind === 'brick' && r() < 0.75) {
-        const fx = x + R(w * 0.45);
-        g.fillStyle = '#1a1719';
-        for (let fy = top + 30; fy < groundTop - 4; fy += 20) {
-          g.fillRect(fx, fy, 34, 2);
-          g.fillRect(fx, fy - 7, 34, 1);
-          for (let px = fx; px <= fx + 34; px += 6) g.fillRect(px, fy - 7, 1, 7);
-          for (let s = 0; s < 18; s += 2) g.fillRect(fx + 4 + s, fy + 2 + s, 2, 1); // stairs down
-        }
-      }
-
-      // Ground floor: a shop with a sign and awning, or a door and stoop.
-      if (kind === 'shop' || r() < 0.3) {
-        g.fillStyle = '#1d1a22';
-        g.fillRect(x + 4, groundTop - 10, w - 8, 9);
-        g.fillStyle = pick([P.yellow, '#ff6b6b', '#7ce0ff', '#ffffff']);
-        g.font = 'bold 8px monospace';
-        g.textBaseline = 'middle';
-        g.textAlign = 'center';
-        g.fillText(pick(SIGNS), x + w / 2, groundTop - 5);
-        const stripe = pick([['#c0392b', '#f2ede4'], ['#2f6b3f', '#f2ede4'], ['#2a4c8c', '#f2ede4']]);
-        for (let ax = x + 4; ax < x + w - 4; ax += 6) {
-          g.fillStyle = stripe[(ax / 6) % 2 | 0];
-          g.fillRect(ax, groundTop, 6, 7);
-        }
-        g.fillStyle = '#3a3348';
-        g.fillRect(x + 8, groundTop + 9, w - 30, SIDEWALK_TOP - groundTop - 11);
-        g.fillStyle = 'rgba(255, 207, 112, 0.35)';
-        g.fillRect(x + 10, groundTop + 11, w - 34, 10);
-        g.fillStyle = '#231d29';
-        g.fillRect(x + w - 18, groundTop + 9, 12, SIDEWALK_TOP - groundTop - 9);
-      } else {
-        g.fillStyle = '#2b1f22';
-        g.fillRect(x + 10, groundTop + 6, 14, SIDEWALK_TOP - groundTop - 6);
-        g.fillStyle = '#9a8a7a';
-        for (let s = 0; s < 3; s++) g.fillRect(x + 6 - s * 2, SIDEWALK_TOP - 3 - s * 3, 22 + s * 4, 3);
-        if (r() < 0.8) this.graffiti(g, x + 32, groundTop + 6, Math.min(w - 40, 60), r);
-      }
-
-      // Water tower on the roof.
-      if (top < 70 && r() < 0.45) {
-        const tx = x + R(w * 0.25);
-        g.fillStyle = '#2a2025';
-        g.fillRect(tx + 2, top - 12, 1, 10);
-        g.fillRect(tx + 12, top - 12, 1, 10);
-        g.fillStyle = '#7a5236';
-        g.fillRect(tx, top - 26, 15, 15);
-        g.fillStyle = '#5a3a26';
-        g.fillRect(tx, top - 22, 15, 1);
-        g.fillRect(tx, top - 16, 15, 1);
-        g.beginPath();
-        g.moveTo(tx - 1, top - 26);
-        g.lineTo(tx + 7.5, top - 33);
-        g.lineTo(tx + 16, top - 26);
-        g.fill();
-      }
-
-      const alley = r() < 0.2 ? 8 : 0;
-      if (alley) {
-        g.fillStyle = '#1f1820';
-        g.fillRect(x + w, top + 20, alley, SIDEWALK_TOP - top - 20);
-      }
-      x += w + alley;
-    }
-
-    // Sidewalk, curb.
-    g.fillStyle = '#4a4548';
-    g.fillRect(0, SIDEWALK_TOP - 1, cv.width, 1);
-    g.fillStyle = P.sidewalk;
-    g.fillRect(0, SIDEWALK_TOP, cv.width, FLOOR.top - SIDEWALK_TOP - 3);
-    g.fillStyle = P.joint;
-    for (let jx = 0; jx < cv.width; jx += 22) g.fillRect(jx, SIDEWALK_TOP, 1, FLOOR.top - SIDEWALK_TOP - 3);
-    g.fillRect(0, SIDEWALK_TOP + 8, cv.width, 1);
-    g.fillStyle = P.curb;
-    g.fillRect(0, FLOOR.top - 3, cv.width, 2);
-    g.fillStyle = '#5e5b58';
-    g.fillRect(0, FLOOR.top - 1, cv.width, 1);
-
-    // Street furniture: lamps, hydrants, trash cans.
-    for (let lx = 120; lx < cv.width; lx += 230) {
-      const glow = g.createRadialGradient(lx, SIDEWALK_TOP - 48, 2, lx, SIDEWALK_TOP - 48, 40);
-      glow.addColorStop(0, 'rgba(255, 214, 140, 0.45)');
-      glow.addColorStop(1, 'rgba(255, 214, 140, 0)');
-      g.fillStyle = glow;
-      g.fillRect(lx - 40, SIDEWALK_TOP - 88, 80, 80);
-      g.fillStyle = '#26262c';
-      g.fillRect(lx - 1, SIDEWALK_TOP - 50, 3, 62);
-      g.fillRect(lx - 1, SIDEWALK_TOP - 52, 10, 2);
-      g.fillStyle = '#ffe2a8';
-      g.fillRect(lx + 6, SIDEWALK_TOP - 50, 4, 2);
-    }
-    for (let hx = 60 + r() * 100; hx < cv.width; hx += 140 + r() * 160) {
-      const ix = R(hx);
-      if (r() < 0.5) {
-        g.fillStyle = P.red; // hydrant
-        g.fillRect(ix, SIDEWALK_TOP + 4, 5, 9);
-        g.fillRect(ix - 1, SIDEWALK_TOP + 3, 7, 2);
-        g.fillRect(ix - 2, SIDEWALK_TOP + 7, 9, 2);
-      } else {
-        g.fillStyle = '#5c6066'; // trash can
-        g.fillRect(ix, SIDEWALK_TOP + 1, 8, 12);
-        g.fillStyle = '#7b8088';
-        g.fillRect(ix - 1, SIDEWALK_TOP, 10, 2);
-      }
-    }
-
-    // Manholes for the road (steam rises from these).
-    const manholes = [];
-    for (let mx = 180 + r() * 120; mx < cv.width; mx += 260 + r() * 200) manholes.push({ x: R(mx), z: R(FLOOR.top + 18 + r() * 50) });
-    return [cv, manholes];
-  }
-
-  graffiti(g, x, y, w, r) {
-    // A loose tag: a few fat colour strokes with a dark outline.
-    const colour = TAG_COLOURS[Math.floor(r() * TAG_COLOURS.length)];
-    const pts = Array.from({ length: 5 }, (_, i) => [x + (i / 4) * w, y + 4 + r() * 16]);
-    for (const [lw, c] of [[6, '#120d16'], [3, colour]]) {
-      g.strokeStyle = c;
-      g.lineWidth = lw;
-      g.lineCap = 'round';
-      g.lineJoin = 'round';
-      g.beginPath();
-      g.moveTo(...pts[0]);
-      for (let i = 1; i < pts.length; i++) {
-        const [px, py] = pts[i - 1];
-        g.quadraticCurveTo(px + 4, py - 10 + r() * 20, pts[i][0], pts[i][1]);
-      }
-      g.stroke();
-    }
-    g.fillStyle = '#ffffff';
-    g.fillRect(Math.round(x + w * 0.3), Math.round(y + 6), 2, 2);
-  }
-
-  /** The road you fight on: asphalt, lane lines, crosswalks at each wave zone, manholes. */
-  buildRoad(stage, manholes) {
-    const [cv, g] = canvas(stage.length + W + 40, H - FLOOR.top);
-    const r = seeded(5);
-    const h = cv.height;
-    g.fillStyle = P.asphalt;
-    g.fillRect(0, 0, cv.width, h);
-    for (let i = 0; i < cv.width * 2; i++) {
-      g.fillStyle = r() < 0.5 ? '#333238' : '#45444a';
-      g.fillRect(Math.floor(r() * cv.width), Math.floor(r() * h), 1, 1);
-    }
-    // Gutter shadow under the curb.
-    g.fillStyle = '#2a292e';
-    g.fillRect(0, 0, cv.width, 3);
-    // Double yellow centre line.
-    const mid = Math.round(h * 0.48);
-    g.fillStyle = '#d9b23a';
-    g.fillRect(0, mid, cv.width, 1);
-    g.fillRect(0, mid + 3, cv.width, 1);
-    // White lane dashes.
-    g.fillStyle = '#cfcac0';
-    for (let lx = 0; lx < cv.width; lx += 40) g.fillRect(lx, Math.round(h * 0.8), 20, 1);
-    // Crosswalks where the wave zones are.
-    for (const zone of stage.zones) {
-      if (!zone.trigger) continue;
-      g.fillStyle = '#d8d3c8';
-      for (let sy = 5; sy < h - 4; sy += 8) g.fillRect(zone.trigger + 60, sy, 36, 4);
-    }
-    // Cracks and oil stains.
-    for (let i = 0; i < cv.width / 60; i++) {
-      const cx = r() * cv.width;
-      const cy = 6 + r() * (h - 12);
-      g.fillStyle = 'rgba(20, 18, 24, 0.45)';
-      g.beginPath();
-      g.ellipse(cx, cy, 6 + r() * 8, 2 + r() * 2, 0, 0, Math.PI * 2);
-      g.fill();
-    }
-    for (const m of manholes) {
-      const my = m.z - FLOOR.top;
-      g.fillStyle = '#26252a';
-      g.beginPath();
-      g.ellipse(m.x, my, 9, 3, 0, 0, Math.PI * 2);
-      g.fill();
-      g.fillStyle = '#4b4a50';
-      g.fillRect(m.x - 6, my - 1, 12, 1);
-      g.fillRect(m.x - 5, my + 1, 10, 1);
-    }
-    return cv;
-  }
-
-  // ------------------------------------------------------------ per-frame backdrop
-
   drawBackground(camX, t) {
-    const lc = this.lc;
-    const sky = lc.createLinearGradient(0, 0, 0, SIDEWALK_TOP);
-    sky.addColorStop(0, '#231a3a');
-    sky.addColorStop(0.55, '#6b2f4a');
-    sky.addColorStop(1, '#e0784a');
-    lc.fillStyle = sky;
-    lc.fillRect(0, 0, W, SIDEWALK_TOP);
-    lc.drawImage(this.skyline, -Math.round(camX * 0.25), 0);
-    lc.drawImage(this.street, -Math.round(camX), 0);
-    lc.drawImage(this.road, -Math.round(camX), FLOOR.top);
-
-    // Steam drifting up from the manholes.
-    lc.save();
-    for (const m of this.manholes) {
-      const sx = m.x - camX;
-      if (sx < -30 || sx > W + 30) continue;
-      for (let i = 0; i < 4; i++) {
-        const k = (t * 0.6 + i / 4) % 1;
-        lc.globalAlpha = 0.28 * (1 - k);
-        lc.fillStyle = '#e4e0ea';
-        lc.beginPath();
-        lc.arc(Math.round(sx + Math.sin(t * 2 + i) * 4 * k), Math.round(m.z - 4 - k * 34), 4 + k * 7, 0, Math.PI * 2);
-        lc.fill();
-      }
-    }
-    lc.restore();
+    this.scenery.draw(this.lc, camX, t);
   }
 
   // ------------------------------------------------------------ fighters and effects
@@ -363,9 +69,9 @@ export class Renderer {
   drawShadow(x, z, h, scale) {
     const lc = this.lc;
     const k = 1 - Math.min(h, 90) / 180;
-    lc.fillStyle = 'rgba(10, 6, 14, 0.5)';
+    lc.fillStyle = 'rgba(30, 20, 48, 0.55)';
     lc.beginPath();
-    lc.ellipse(Math.round(x), Math.round(z), 13 * scale * k, 3.5 * k, 0, 0, Math.PI * 2);
+    lc.ellipse(Math.round(x), Math.round(z), 12 * scale * k, 3 * scale * k, 0, 0, Math.PI * 2);
     lc.fill();
   }
 
@@ -403,11 +109,24 @@ export class Renderer {
     if (alpha === 0) return;
 
     const bob = f.state === 'idle' ? Math.sin(t * 4 + f.id) * 0.6 : 0;
-    drawRig(ac, x, y, f.facing, this.poseFor(f), f.def.style, f.def.scale, { flash, alpha, rotate, t, bob });
+    // Speed lines behind a lunge or a dive, like an anime streak.
+    const lunging = (f.state === 'attack' && f.move.lunge && phaseOf(f) === 'active') || f.diving;
+    if (lunging) {
+      const s = f.def.scale;
+      ac.save();
+      for (let i = 0; i < 6; i++) {
+        const ly = Math.round(y - (8 + i * 8) * s);
+        const len = (20 + ((i * 37 + Math.floor(t * 60)) % 18)) * s;
+        ac.fillStyle = i % 2 ? f.style.accent ?? '#ffd23f' : '#ffffff';
+        ac.fillRect(Math.round(x - f.facing * (8 * s + len)), ly, Math.round(len), 2);
+      }
+      ac.restore();
+    }
+    drawRig(ac, x, y, f.facing, this.poseFor(f), f.style, f.def.scale, { flash, alpha, rotate, t, bob });
 
     // Telegraph: a "!" over an enemy about to strike.
     if (f.state === 'windup') {
-      const top = Math.round(y - 72 * f.def.scale);
+      const top = Math.round(y - 66 * f.def.scale);
       ac.fillStyle = P.ink;
       ac.fillRect(Math.round(x) - 2, top - 1, 5, 15);
       ac.fillStyle = P.yellow;
@@ -423,7 +142,7 @@ export class Renderer {
       const a0 = f.facing > 0 ? -0.9 : Math.PI - 0.5;
       ac.save();
       ac.lineWidth = f.move.blade ? 4 : 3;
-      ac.strokeStyle = f.move.blade ? '#e6f0ff' : f.def.style.accent;
+      ac.strokeStyle = f.move.blade ? '#e6f0ff' : f.style.accent;
       ac.beginPath();
       ac.arc(Math.round(x), Math.round(cy), r, a0, a0 + 1.4);
       ac.stroke();
@@ -431,7 +150,7 @@ export class Renderer {
     }
     if (f.side === 'hero' && f.state === 'attack' && ['tagIn', 'quake'].includes(f.move.pose) && phaseOf(f) !== 'recovery') {
       ac.save();
-      ac.strokeStyle = f.def.style.accent;
+      ac.strokeStyle = f.style.accent;
       ac.lineWidth = 2;
       ac.beginPath();
       ac.ellipse(Math.round(x), Math.round(f.move.pose === 'quake' ? f.z - 2 : y - 24), f.move.pose === 'quake' ? 46 : 30, 9, 0, 0, Math.PI * 2);
@@ -479,7 +198,23 @@ export class Renderer {
     for (const s of fx.sparks) {
       const a = s.life / s.max;
       const x = s.x - camX;
-      if (s.kind === 'ring') {
+      if (s.kind === 'star') {
+        // Comic impact burst: a jagged white star with a yellow rim.
+        const grow = s.size * (0.6 + 0.4 * (1 - a));
+        for (const [col, sc] of [[P.ink, 1.15], [s.colour, 1], ['#ffffff', 0.62]]) {
+          ac.fillStyle = col;
+          ac.beginPath();
+          for (let i = 0; i < 16; i++) {
+            const ang = s.spin + (i / 16) * Math.PI * 2;
+            const rr = (i % 2 ? 0.42 : 1) * grow * sc * (i % 4 === 0 ? 1.15 : 1);
+            const px = x + Math.cos(ang) * rr;
+            const py = s.y + Math.sin(ang) * rr * 0.8;
+            i ? ac.lineTo(px, py) : ac.moveTo(px, py);
+          }
+          ac.closePath();
+          ac.fill();
+        }
+      } else if (s.kind === 'ring') {
         ac.strokeStyle = s.colour;
         ac.lineWidth = 2;
         ac.beginPath();
@@ -642,6 +377,19 @@ export class Renderer {
 
     this.text(`${g.score}`.padStart(6, '0'), x0 + this.gw - 10 * u, y0 + 13 * u, { size: 10 * u, align: 'right', colour: P.paper });
     if (v.muted) this.text('SOUND OFF', x0 + this.gw - 10 * u, y0 + 25 * u, { size: 4.5 * u, colour: P.dim, align: 'right' });
+
+    // Hit combo counter.
+    if (g.chain >= 2) {
+      const pop = 1 + Math.max(0, g.chainPop) * 0.6;
+      this.text(`×${g.chain}`, x0 + 168 * u, y0 + 22 * u, { size: 14 * u * pop, colour: P.yellow, shadow: P.red });
+      this.text('HITS', x0 + 168 * u, y0 + 33 * u, { size: 5 * u, colour: P.paper });
+    }
+    // Floating damage numbers, drawn sharp at full resolution over the pixel world.
+    for (const n of v.fx.numbers) {
+      const a = n.life / n.max;
+      if (a < 0.15 && Math.floor(n.life * 30) % 2) continue;
+      this.text(n.text, x0 + (n.x - g.camX) * u, y0 + n.y * u, { size: (n.big ? 9 : 7) * u, colour: n.big ? P.yellow : P.paper });
+    }
 
     const cx = x0 + this.gw / 2;
     if (g.state === 'intro') {

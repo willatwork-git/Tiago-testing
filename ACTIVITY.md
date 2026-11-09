@@ -2,6 +2,29 @@
 
 Newest at the top.
 
+## 2026-11-09 — Borough Brawl art pass: towards the reference look
+
+- **Characters rebuilt:**
+  - solid tapered body parts with three-tone cel shading (one light, upper left, lavender
+    shadows) and outlines
+  - about a third of the screen tall
+  - outfit detail per character, and gang colour variants
+  - the shark gets a counter-shaded head with gills, a bigger pauldron, a detailed sword and a
+    tabard over chainmail
+- **Scenery** (new `scenery.js`):
+  - late-afternoon sky and clouds, a hazy skyline
+  - stone, brick and brownstone fronts with brick-level detail, recessed windows with
+    reflections and AC units, fire escapes, water towers
+  - shopfronts, shutters, posters
+  - trees, planters, benches, news boxes, hydrants, lamps
+  - a cracked sidewalk, and a textured road with patches, potholes and steam
+- **Feedback:** comic impact bursts, floating damage numbers, a ×N HITS combo counter, speed
+  lines on lunges and dives.
+- **Gameplay numbers** rescaled to the bigger bodies: speeds, jumps, depth reach, jump dodge,
+  enemy spacing.
+- **Tests:** sim and e2e pass (the Comet Dive check now also accepts its landing; it's faster
+  now).
+
 ## 2026-11-09 — Borough Brawl: specials, New York streets, Razorfin
 
 - **Special moves:**

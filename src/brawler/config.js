@@ -5,14 +5,14 @@ export const W = 480;
 export const H = 270;
 
 // The walkable road, as depth (z) values. Screen y = z − h. The sidewalk sits just above it.
-export const FLOOR = { top: 178, bottom: 262 };
+export const FLOOR = { top: 176, bottom: 264 };
 
 export const CONFIG = {
   gravity: 900,
   hitstop: 0.05, // freeze on a normal hit
   hitstopHeavy: 0.11, // freeze on a finisher
-  depthReach: 13, // attacks connect within this depth distance
-  jumpDodge: 22, // a hero this high off the floor is above ground attacks
+  depthReach: 16, // attacks connect within this depth distance
+  jumpDodge: 30, // a hero this high off the floor is above ground attacks
   bodyHalf: 9, // half-width of a body at scale 1, for hit tests
 
   hurtTime: 0.28,

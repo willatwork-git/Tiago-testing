@@ -111,7 +111,7 @@ await ev(`game.heroes.forEach(h => { h.specialCooldown = 0; })`);
 await key('KeyK');
 await waitFor(`${hero}.h > 30`, 600);
 await key('KeyL');
-check(await waitFor(`${hero}.diving && ${hero}.move.name === 'COMET DIVE'`, 300), 'Nova\'s air special: Comet Dive');
+check(await waitFor(`(${hero}.diving && ${hero}.move.name === 'COMET DIVE') || (${hero}.move && ${hero}.move.pose === 'getup')`, 300), 'Nova\'s air special: Comet Dive (or its landing)');
 await sleep(120);
 await shot('dive');
 await waitFor(`${hero}.h === 0 && ${hero}.state !== 'jump'`, 1500);

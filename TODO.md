@@ -113,6 +113,12 @@ fight the evasive play dash is for, so see if dash is fun on its own first.*
 - [x] Pixel edges (hardened actor layer), arcade-style HUD; renamed Borough Brawl (working title)
 - [x] Tests updated: the bot uses every special; e2e covers run, throw, dive + shockwave
 
+### B1.6 Art pass: closer to the reference *(2026-11-09)*
+- [x] Fighters a third of the screen tall; solid tapered body parts; three-tone cel shading from one light; outlines
+- [x] Outfit details per character; gang colour variants; counter-shaded shark head with gills; detailed sword
+- [x] Scenery module: late-afternoon sky with clouds, hazy skyline, stone/brick/brownstone with brick-level detail, recessed glass windows, shopfronts, shutters, posters, trees, benches, news boxes, cracked sidewalk, textured road with potholes
+- [x] Comic impact bursts, floating damage numbers, ×N HITS combo counter, speed lines
+
 ### B2 Next *(now)*
 - [ ] **Playtest B1 with the kids**: what's fun, what's confusing, too easy or too hard? (The test
   bot clears stage 1 every run, so it's probably gentle.)
@@ -121,7 +127,8 @@ fight the evasive play dash is for, so see if dash is fun on its own first.*
 - [ ] Ranged enemy (forces movement)
 - [ ] Grab + throw
 - [ ] Hero select (pick your two from a roster of 3–4); Titan returns as a pick
-- [ ] Ask the kids: Razorfin's real name? Does he look right? Hand-drawn pixel sprite sheet for him (they draw, we import)?
+- [ ] Ask the kids: Razorfin's real name? Does he look right?
+- [ ] **Hand-drawn sprite sheets** (the last step to reference quality): the kids or an artist draw each pose as pixel art; we load PNG sheets instead of the code rig. That means relaxing the no-assets rule for the brawler, so it needs a decision first
 - [ ] Hero colour picker (shared idea with Neon Chomp)
 - [ ] Two-player co-op (each player one hero, or tag pairs)
 - [ ] Gamepad support (both games)

@@ -36,6 +36,9 @@ export function createGame(stageIndex = 0) {
     waveTimer: 0,
     score: 0,
     hitstop: 0,
+    chain: 0, // hits in a row without a long gap (the ×N counter)
+    chainTime: 0,
+    chainPop: 0, // > 0 just after the counter goes up, for a little bounce
     go: 0, // > 0 while the GO → prompt shows
     events: [],
   };
@@ -94,6 +97,9 @@ export function update(g, dt, ctl = NO_INPUT) {
   g.stateTime += dt;
   g.tagCooldown = Math.max(0, g.tagCooldown - dt);
   g.go = Math.max(0, g.go - dt);
+  g.chainPop = Math.max(0, g.chainPop - dt * 4);
+  g.chainTime -= dt;
+  if (g.chainTime <= 0) g.chain = 0;
 
   controlHero(g, ctl);
   const hero = activeHero(g);
@@ -322,7 +328,7 @@ function think(g, e) {
         tz = hero.z;
       } else {
         // Wait on screen: a waiting spot past the edge would leave them unreachable forever.
-        tx = clamp(hero.x + side * (85 + e.jitter), g.camX + 24, g.camX + W - 24);
+        tx = clamp(hero.x + side * (115 + e.jitter), g.camX + 30, g.camX + W - 30);
         tz = e.homeZ;
       }
       const dx = tx - e.x;
@@ -333,7 +339,7 @@ function think(g, e) {
       // Light separation so a crowd doesn't stack into one sprite.
       for (const o of g.enemies) {
         if (o === e || o.state === 'ko') continue;
-        if (Math.abs(o.x - e.x) < 14 && Math.abs(o.z - e.z) < 8) e.vx += (e.x <= o.x ? -1 : 1) * 25;
+        if (Math.abs(o.x - e.x) < 22 && Math.abs(o.z - e.z) < 10) e.vx += (e.x <= o.x ? -1 : 1) * 30;
       }
 
       e.facing = hero.x >= e.x ? 1 : -1;
@@ -394,14 +400,14 @@ function physics(g, f, dt) {
   }
   f.x += f.vx * dt;
   f.z = clamp(f.z + f.vz * dt, FLOOR.top, FLOOR.bottom);
-  if (f.side === 'hero') f.x = clamp(f.x, g.camX + 14, g.camX + W - 14);
+  if (f.side === 'hero') f.x = clamp(f.x, g.camX + 20, g.camX + W - 20);
   else f.x = clamp(f.x, -80, g.stage.length + 80);
 
   if (f.state === 'hurt' && f.t >= CONFIG.hurtTime * (f.def.hurtScale ?? 1)) setState(f, 'idle');
   if (f.state === 'down' && f.lying && f.t >= CONFIG.lieTime) {
     if (f.hp <= 0) {
       setState(f, 'ko');
-      emit(g, 'ko', { x: f.x, y: f.z - 6, side: f.side, colour: f.def.style.torso });
+      emit(g, 'ko', { x: f.x, y: f.z - 6, side: f.side, colour: f.style.torso });
     } else {
       setState(f, 'getup');
       f.lying = false;
@@ -499,6 +505,9 @@ function applyHit(g, att, target, move) {
 
   g.hitstop = move.heavy ? CONFIG.hitstopHeavy : CONFIG.hitstop;
   if (att.side === 'hero') {
+    g.chain++;
+    g.chainTime = 1.6;
+    g.chainPop = 1;
     g.score += CONFIG.score.hit;
     if (target.hp <= 0) g.score += target.def.score;
   }
@@ -506,6 +515,7 @@ function applyHit(g, att, target, move) {
     x: (att.x + target.x) / 2,
     y: target.z - target.h - 29 * target.def.scale,
     heavy: !!move.heavy,
+    dmg: move.dmg,
     toHero: target.side === 'hero',
     finish: target.hp <= 0,
   });
@@ -527,7 +537,7 @@ function updateCamera(g, dt) {
 function spawnWave(g, wave) {
   wave.forEach(([type, side], i) => {
     const def = ENEMIES[type];
-    const x = side === 'right' ? g.lock + W + 20 + i * 18 : g.lock - 20 - i * 18;
+    const x = side === 'right' ? g.lock + W + 30 + i * 26 : g.lock - 30 - i * 26;
     const e = createFighter(def, 'enemy', x, rand(FLOOR.top + 6, FLOOR.bottom - 6));
     e.facing = side === 'right' ? -1 : 1;
     e.attackCooldown = rand(0.4, 1.2) + i * 0.25;

@@ -44,3 +44,6 @@ Durable decisions, with the reason. Newest at the bottom.
 | 2026-11-09 | Titan retired for now; returns with hero select | Razorfin took the heavy role |
 | 2026-11-09 | Specials: ground = throw, air = dive, →→ + attack = running attack; one shared cooldown per hero | Covers all three requested specials with one extra button |
 | 2026-11-09 | Fighters drawn on a separate layer with alpha snapped on/off | Real pixel-art edges instead of soft vector shapes |
+| 2026-11-09 | Brawler art pass towards the Cosmic Invasion / Shredder's Revenge look: big cel-shaded volumetric fighters, detailed late-afternoon scenery, comic hit feedback | Will asked for "more realistic" art like the reference screenshots |
+| 2026-11-09 | Scenery lives in its own module (`src/brawler/scenery.js`), pre-drawn once from a seeded generator | It grew too big for render.js; the street must look the same every visit |
+| 2026-11-09 | Code-drawn art has a ceiling; hand-drawn sprite sheets are the path past it, but need the no-assets rule relaxed | Recorded so it's an explicit decision, not drift |
