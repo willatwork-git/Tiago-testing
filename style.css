@@ -30,21 +30,33 @@ canvas {
   top: 38vh;
   left: 50%;
   transform: translateX(-50%);
-  width: min(420px, calc(100vw - 32px));
-  max-height: calc(62vh - 16px);
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(62vh - 12px);
   overflow-y: auto;
   box-sizing: border-box;
-  padding: 18px 20px;
+  padding: 16px 20px;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 14px;
   box-shadow: 0 0 40px rgba(138, 92, 255, 0.25);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
-.menu[hidden] {
+/* Short screens (landscape phones): the canvas logo shrinks, the menu moves up. */
+@media (max-height: 520px) {
+  .menu {
+    top: 30vh;
+    max-height: calc(70vh - 8px);
+    padding: 10px 16px;
+    gap: 8px;
+  }
+}
+
+.menu[hidden],
+.hint[hidden],
+.warning[hidden] {
   display: none;
 }
 
@@ -77,96 +89,14 @@ canvas {
   text-align: left;
 }
 
-.toggle {
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  text-transform: none;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  cursor: pointer;
-}
-
-.toggle input {
-  accent-color: var(--accent);
-}
-
-.hint[hidden] {
-  display: none;
-}
-
-.segmented {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.segmented button {
-  font: 600 14px var(--font);
-  padding: 8px;
-  background: transparent;
-  color: var(--dim);
-  border: 0;
-  cursor: pointer;
-}
-
-.segmented button[aria-checked="true"] {
-  background: var(--accent);
-  color: var(--bg);
-}
-
-.swatches {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.swatch {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  outline-offset: 2px;
-  cursor: pointer;
-  padding: 0;
-  position: relative;
-}
-
-.swatch[aria-checked="true"] {
-  border-color: var(--text);
-  box-shadow: 0 0 12px currentColor;
-}
-
-/* Custom colour: a rainbow ring wrapping a real colour input. */
-.swatch.custom {
-  background: conic-gradient(#ff3b5c, #ffe14f, #7cff4f, #3ff0ff, #8a5cff, #ff5fd2, #ff3b5c);
-  overflow: hidden;
-}
-
-.swatch.custom input {
+/* Visually hidden but still focusable and announced. */
+.segmented input,
+.swatch input[type="radio"] {
   position: absolute;
-  inset: 0;
   opacity: 0;
-  cursor: pointer;
-  width: 100%;
-  height: 100%;
-}
-
-.swatches.disabled {
-  opacity: 0.35;
-  pointer-events: none;
-}
-
-.warning {
+  width: 1px;
+  height: 1px;
   margin: 0;
-  font-size: 12px;
-  color: var(--warn);
-}
-
-.warning[hidden] {
-  display: none;
 }
 
 .play {
@@ -186,8 +116,158 @@ canvas {
   margin-left: 6px;
 }
 
-.menu button:focus-visible,
-.toggle input:focus-visible,
-.swatch:focus-within {
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.segmented label {
+  position: relative;
+  font: 600 14px var(--font);
+  padding: 8px;
+  text-align: center;
+  color: var(--dim);
+  cursor: pointer;
+}
+
+.segmented label:has(:checked) {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+details {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+summary::before {
+  content: "▸";
+  color: var(--dim);
+  transition: transform 0.15s;
+}
+
+details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.summary-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 8px var(--g);
+}
+
+.customise {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+#preview {
+  width: 72px;
+  height: 72px;
+  flex: none;
+  border-radius: 12px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+
+.colour-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.toggle {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  cursor: pointer;
+}
+
+.toggle input {
+  accent-color: var(--accent);
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  box-sizing: border-box;
+  background: var(--c);
+  color: var(--c);
+  cursor: pointer;
+  position: relative;
+}
+
+.swatch:has(:checked),
+.swatch.custom.selected {
+  border-color: var(--text);
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* Custom colour: a rainbow ring wrapping a real colour input. */
+.swatch.custom {
+  background: conic-gradient(#ff3b5c, #ffe14f, #7cff4f, #3ff0ff, #8a5cff, #ff5fd2, #ff3b5c);
+  overflow: hidden;
+}
+
+.swatch.custom input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.swatches.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.warning {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--warn);
+}
+
+.menu .play:focus-visible,
+.segmented label:has(:focus-visible),
+.swatch:has(:focus-visible),
+.toggle:has(:focus-visible),
+summary:focus-visible {
   outline: 2px solid var(--text);
+  outline-offset: 2px;
 }

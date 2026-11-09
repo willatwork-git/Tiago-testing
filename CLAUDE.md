@@ -15,7 +15,15 @@ properly, run it, and test changes in the browser.
 python3 -m http.server 8000
 ```
 Then open http://localhost:8000. A server is needed because the code uses ES modules.
-Add `?play` to the URL to skip the title screen.
+Add `?play` to the URL to skip the title screen, `?debug` to expose the game state as `window.game`.
+
+## Test
+
+```
+node tests/sim.mjs     # game logic, headless: maze, AI, 20 simulated runs
+node tests/e2e.mjs     # real Chrome via DevTools Protocol; needs the server on port 8765
+```
+Run both after any change to movement, AI, input, menu or states. No dependencies (Node 22+).
 
 Tunable numbers (speeds, timers, scores) are all in `src/config.js`.
 

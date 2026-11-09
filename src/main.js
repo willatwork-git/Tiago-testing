@@ -1,8 +1,9 @@
 // Boot, game loop and state machine.
 //
-//   title → ready → playing ⇄ paused
-//                     ├→ dying → ready | gameOver → title
-//                     └→ levelClear → ready (next level)
+//   title → ready → playing          (ready waits for the first direction key)
+//           ready ⇄ paused ⇄ playing
+//                   playing → dying → ready | gameOver → ready (retry) | title
+//                   playing → levelClear → ready (next level)
 
 import { Maze } from './maze.js';
 import { Player } from './player.js';
@@ -40,8 +41,11 @@ const game = {
   modeIndex: 0,
   modeTime: 0,
   frightTime: 0,
+  frightTotal: 0,
   eatChain: 0,
   lifeTime: 0,
+  pausedFrom: 'playing',
+  popups: [], // { x, y, text, age } — floating score numbers, in tile units
 };
 
 const menu = createMenu({
@@ -56,7 +60,7 @@ const menu = createMenu({
     game.diff = DIFFICULTY[key];
     game.high = loadHighScore(key);
     saveDifficulty(key);
-    menu.show(game.high);
+    menu.setHigh(game.high); // not show(): that would pull focus off the radios
   },
   onPlay() {
     if (game.state === 'title') newGame();
@@ -96,8 +100,10 @@ function resetActors() {
   game.modeIndex = 0;
   game.modeTime = 0;
   game.frightTime = 0;
+  game.frightTotal = 0;
   game.eatChain = 0;
   game.lifeTime = 0;
+  game.popups = [];
   input.clearDir();
 }
 
@@ -112,6 +118,7 @@ function onPlayerTile(x, y) {
   if (eaten === 'o') {
     addScore(CONFIG.score.power);
     game.frightTime = CONFIG.frightTime(game.level) * game.diff.frightScale;
+    game.frightTotal = game.frightTime;
     game.eatChain = 0;
     for (const gl of game.glitches) gl.frighten(game.maze);
   }
@@ -141,17 +148,21 @@ function updateModes(dt) {
 
 function checkCollisions() {
   const p = game.player;
+  const cols = game.maze.cols;
   const reach = CONFIG.collideDist ** 2;
   for (const gl of game.glitches) {
     if (gl.state !== 'active' && gl.state !== 'leaving') continue;
-    const dx = gl.x - p.x;
+    let dx = gl.x - p.x;
+    dx -= cols * Math.round(dx / cols); // the tunnel wraps: x = 20.9 and x = 0.1 are neighbours
     const dy = gl.y - p.y;
     if (dx * dx + dy * dy > reach) continue;
     if (gl.frightened) {
+      const points = CONFIG.score.glitch * 2 ** game.eatChain;
       gl.frightened = false;
       gl.state = 'eaten';
-      addScore(CONFIG.score.glitch * 2 ** game.eatChain);
+      addScore(points);
       game.eatChain++;
+      game.popups.push({ x: gl.x, y: gl.y, text: String(points), age: 0 });
     } else {
       game.lives--;
       setState('dying');
@@ -171,13 +182,33 @@ function updatePlaying(dt) {
   checkCollisions();
 }
 
+function pause() {
+  if (game.state !== 'playing' && game.state !== 'ready') return;
+  game.pausedFrom = game.state;
+  setState('paused');
+}
+
+// After READY, nothing moves until the player picks a direction they can actually go.
+function updateReady() {
+  const d = input.dir;
+  if (game.stateTime < CONFIG.readyTime || !d) return;
+  const p = game.player;
+  if (!game.maze.passable(p.tx + d.x, p.ty + d.y)) return;
+  p.want = d;
+  p.dir = d;
+  setState('playing');
+}
+
 function update(dt) {
   game.time += dt;
   game.stateTime += dt;
 
+  for (const pop of game.popups) pop.age += dt;
+  game.popups = game.popups.filter((pop) => pop.age < CONFIG.popupTime);
+
   if (input.take('KeyP') || input.take('Escape')) {
-    if (game.state === 'playing') setState('paused');
-    else if (game.state === 'paused') setState('playing');
+    if (game.state === 'paused') setState(game.pausedFrom);
+    else pause();
   }
   if (input.take('KeyQ') && (game.state === 'paused' || game.state === 'gameOver')) quitToMenu();
 
@@ -186,7 +217,7 @@ function update(dt) {
       if (input.take('Enter')) newGame();
       break;
     case 'ready':
-      if (game.stateTime >= CONFIG.readyTime) setState('playing');
+      updateReady();
       break;
     case 'playing':
       updatePlaying(dt);
@@ -209,20 +240,27 @@ function update(dt) {
       }
       break;
     case 'gameOver':
-      if (game.stateTime > 1 && input.take('Enter')) quitToMenu();
+      if (game.stateTime > 1 && input.take('Enter')) newGame(); // retry, same settings
       break;
   }
 
   input.flush();
 }
 
-// Losing focus mid-game pauses it.
-window.addEventListener('blur', () => {
-  if (game.state === 'playing') setState('paused');
+// Losing focus pauses the game; leaving the page also saves the best score,
+// so a refresh mid-run can't lose a record the HUD already showed.
+window.addEventListener('blur', pause);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'hidden') return;
+  pause();
+  saveHighScore(game.difficulty, game.high);
 });
+window.addEventListener('pagehide', () => saveHighScore(game.difficulty, game.high));
 
-// Dev aid: ?play skips the title screen.
-if (new URLSearchParams(location.search).has('play')) newGame();
+// Dev aids: ?play skips the title screen; ?debug exposes the game state as window.game.
+const params = new URLSearchParams(location.search);
+if (params.has('debug')) window.game = game;
+if (params.has('play')) newGame();
 else setState('title');
 
 let last = performance.now();

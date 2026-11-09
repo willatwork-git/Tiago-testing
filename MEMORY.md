@@ -20,3 +20,11 @@ Durable decisions, with the reason. Newest at the bottom.
 | 2026-11-09 | Difficulty = Normal / Hard via modifiers in `DIFFICULTY` (config.js); separate high score per difficulty | Requested; a Hard score shouldn't compete with Normal ones |
 | 2026-11-09 | Quit to menu = Q while paused or on game over (not mid-play) | Stops an accidental keypress from ending a run |
 | 2026-11-09 | Space no longer starts the game | Reserved for dash (M6) |
+| 2026-11-09 | Took ChatGPT's review (`feedback/README.md`) as milestone M5b, before M6 | Four real bugs plus first-run clarity; ahead of new features |
+| 2026-11-09 | Declined from that review: HTML pause/game-over panels, "lives incl. current" count, matching tunnel-exit markers, pellets-left counter | Canvas overlays + key shortcuts are enough; spare-life icons are the genre convention; the rest are playtest questions |
+| 2026-11-09 | Dash before combo in M6 | Combo may punish the evasive moves dash is for |
+| 2026-11-09 | Each life waits for the first *passable* direction after a 0.8 s READY | The opening is the player's choice; a held key after death can't fire them into danger |
+| 2026-11-09 | The Overcharge warning is a fraction (last 25%), not seconds | A fixed 2 s covered the whole window at Hard L6 |
+| 2026-11-09 | Game input ignores keys aimed at focused form controls (`input.js` CONTROLS) | Menu radios, checkboxes and buttons keep their native keyboard behaviour |
+| 2026-11-09 | Tests live in `tests/` (`sim.mjs`, `e2e.mjs`): Node only, no packages; e2e drives Chrome over CDP | Keeps the no-dependency rule while still testing real keyboard and layout |
+| 2026-11-09 | `?debug` exposes `window.game` | The e2e tests need to see and set state |

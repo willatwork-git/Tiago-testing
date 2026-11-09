@@ -139,11 +139,13 @@ export class Renderer {
     c.rect(0, 0, bw, bh);
     c.clip();
 
-    const showGlitches = game.state !== 'levelClear' && !(game.state === 'dying' && game.stateTime > 0.5);
+    const over = game.state === 'gameOver';
+    const showGlitches = !over && game.state !== 'levelClear' && !(game.state === 'dying' && game.stateTime > 0.5);
     if (showGlitches) {
       for (const gl of game.glitches) this.drawGlitch(gl, game);
     }
-    this.drawPlayer(game);
+    if (!over) this.drawPlayer(game);
+    this.drawPopups(game);
     c.restore();
 
     this.drawOverlay(game);
@@ -208,34 +210,16 @@ export class Renderer {
       mouth = 0.1 + 0.9 * t;
       alpha = 1 - Math.max(0, (game.stateTime - 1.1) / 0.4);
     }
-    this.chomper((p.x + 0.5) * ts, (p.y + 0.5) * ts, ts * 0.42, p.dir, mouth, game.colours, alpha);
+    // Overcharged: a crisp white outline, blinking once the warning window starts.
+    const outline = game.frightTime > 0 && !(overchargeWarning(game) && Math.floor(game.time * 8) % 2 === 0);
+    for (const x of wrapCopies(p.x, game.maze.cols)) {
+      this.chomper((x + 0.5) * ts, (p.y + 0.5) * ts, ts * 0.42, p.dir, mouth, game.colours, alpha, outline);
+    }
   }
 
   /** The player character, at pixel coordinates. */
-  chomper(px, py, r, dir, mouth, colours, alpha = 1) {
-    if (alpha <= 0) return;
-    const c = this.ctx;
-    c.save();
-    c.globalAlpha = alpha;
-    c.translate(px, py);
-    c.rotate(Math.atan2(dir.y, dir.x));
-    if (dir.x < 0) c.scale(1, -1); // keep the eye on top when facing left
-    c.shadowColor = colours.glow;
-    c.shadowBlur = r * 1.4;
-    c.fillStyle = colours.body;
-    c.beginPath();
-    c.moveTo(0, 0);
-    c.arc(0, 0, r, mouth * Math.PI, TAU - mouth * Math.PI);
-    c.closePath();
-    c.fill();
-    if (mouth < 0.6) {
-      c.shadowBlur = 0;
-      c.fillStyle = PALETTE.pupil;
-      c.beginPath();
-      c.arc(r * 0.12, -r * 0.5, r * 0.13, 0, TAU);
-      c.fill();
-    }
-    c.restore();
+  chomper(px, py, r, dir, mouth, colours, alpha = 1, outline = false) {
+    drawChomper(this.ctx, px, py, r, dir, mouth, colours, alpha, outline);
   }
 
   drawGlitch(gl, game) {
@@ -243,11 +227,26 @@ export class Renderer {
     const bob = gl.state === 'house' ? Math.sin(game.time * 6 + gl.index) * 0.12 : 0;
     let colour = gl.def.colour;
     if (gl.frightened) {
-      const warn = game.frightTime < CONFIG.frightWarn && Math.floor(game.time * 8) % 2 === 0;
+      const warn = overchargeWarning(game) && Math.floor(game.time * 8) % 2 === 0;
       colour = warn ? PALETTE.frightFlash : PALETTE.fright;
     }
-    this.glitch((gl.x + 0.5) * ts, (gl.y + 0.5 + bob) * ts, ts * 0.44, gl.def.shape, colour, gl.dir,
-      { frightened: gl.frightened, eyesOnly: gl.state === 'eaten', time: game.time });
+    for (const x of wrapCopies(gl.x, game.maze.cols)) {
+      this.glitch((x + 0.5) * ts, (gl.y + 0.5 + bob) * ts, ts * 0.44, gl.def.shape, colour, gl.dir,
+        { frightened: gl.frightened, eyesOnly: gl.state === 'eaten', time: game.time });
+    }
+  }
+
+  drawPopups(game) {
+    const ts = this.ts;
+    for (const pop of game.popups) {
+      const t = pop.age / CONFIG.popupTime;
+      const c = this.ctx;
+      c.save();
+      c.globalAlpha = 1 - t * t;
+      this.text(pop.text, (pop.x + 0.5) * ts, (pop.y + 0.2 - t * 0.9) * ts,
+        { size: ts * 0.6, colour: '#bfe3ff', glow: ts * 0.4 });
+      c.restore();
+    }
   }
 
   /** A Glitch, at pixel coordinates. */
@@ -331,6 +330,26 @@ export class Renderer {
     for (let k = 0; k < spare; k++) {
       this.chomper(ox + bw - ts * (3.6 + k * 0.9), y, ts * 0.3, DIRS.right, 0.2, game.colours);
     }
+
+    // Overcharge bar: shrinks as it runs out, flashes in the warning window.
+    if (game.frightTime > 0 && game.state !== 'gameOver') {
+      const c = this.ctx;
+      const by = oy - ts * 0.3;
+      const warn = overchargeWarning(game) && Math.floor(game.time * 8) % 2 === 0;
+      const colour = warn ? PALETTE.frightFlash : PALETTE.fright;
+      this.text('OVERCHARGE', ox + ts * 0.3, by, { size: ts * 0.42, colour, align: 'left' });
+      const x0 = ox + ts * 4.3;
+      const full = bw - ts * 4.6;
+      const frac = Math.max(0, game.frightTime / game.frightTotal);
+      c.save();
+      c.fillStyle = 'rgba(45, 125, 255, 0.18)';
+      c.fillRect(x0, by - ts * 0.08, full, ts * 0.16);
+      c.fillStyle = colour;
+      c.shadowColor = colour;
+      c.shadowBlur = ts * 0.4;
+      c.fillRect(x0, by - ts * 0.08, full * frac, ts * 0.16);
+      c.restore();
+    }
   }
 
   drawOverlay(game) {
@@ -340,9 +359,16 @@ export class Renderer {
 
     if (game.state === 'ready') {
       this.text('READY!', cx, midY, { size: ts * 0.9, colour: PALETTE.ready, glow: ts * 0.5 });
+      if (game.stateTime >= CONFIG.readyTime) {
+        // Prompt just under the player, on a backing so it reads over the walls.
+        const py = oy + (game.player.y + 1.6) * ts;
+        this.pill('ARROWS / WASD TO MOVE', cx, py, ts * 0.5);
+      }
+    } else if (game.state === 'levelClear') {
+      this.text(`LEVEL ${game.level} CLEARED`, cx, midY, { size: ts * 0.8, colour: PALETTE.ready, glow: ts * 0.5 });
     } else if (game.state === 'gameOver') {
       this.text('GAME OVER', cx, midY, { size: ts * 0.9, colour: PALETTE.danger, glow: ts * 0.5 });
-      if (game.stateTime > 1) this.text('ENTER FOR MENU', cx, oy + bh + ts * 0.2, { size: ts * 0.5, colour: PALETTE.dim });
+      if (game.stateTime > 1) this.pill('ENTER  RETRY     Q  MENU', cx, midY + ts * 1.4, ts * 0.5);
     } else if (game.state === 'paused') {
       const c = this.ctx;
       c.fillStyle = 'rgba(5, 3, 15, 0.7)';
@@ -352,6 +378,24 @@ export class Renderer {
     }
   }
 
+  /** Text on a dark rounded backing. */
+  pill(str, x, y, size) {
+    const c = this.ctx;
+    c.save();
+    c.font = `700 ${Math.round(size)}px ${FONT}`;
+    const w = c.measureText(str).width + size * 1.6;
+    const h = size * 1.9;
+    c.fillStyle = 'rgba(5, 3, 15, 0.88)';
+    c.strokeStyle = PALETTE.dim;
+    c.lineWidth = 1;
+    c.beginPath();
+    c.roundRect(x - w / 2, y - h / 2, w, h, h / 2);
+    c.fill();
+    c.stroke();
+    c.restore();
+    this.text(str, x, y, { size, colour: PALETTE.text });
+  }
+
   drawTitle(game) {
     const { w, h } = this;
     const unit = Math.min(w / 16, h / 14);
@@ -359,18 +403,64 @@ export class Renderer {
     const t = game.time;
 
     this.text('NEON CHOMP', cx, h * 0.11, { size: unit * 1.15, colour: '#ff5fd2', glow: unit * 0.6, weight: 800 });
-    this.text('a maze-chase of light', cx, h * 0.11 + unit * 0.9, { size: unit * 0.35, colour: PALETTE.dim, weight: 500 });
+    if (h >= 520) this.text('a maze-chase of light', cx, h * 0.11 + unit * 0.9, { size: unit * 0.35, colour: PALETTE.dim, weight: 500 });
 
     // Parade: the chomper (in the player's chosen colours — the live preview) runs
     // right with the Glitches in pursuit. Starts on-screen, then loops.
     const span = w + unit * 8;
     const lead = ((t * unit * 3 + w * 0.6) % span) - unit * 2;
-    const y = h * 0.27;
+    const y = h * (h < 520 ? 0.21 : 0.27); // short screens: matches the menu's media query
     this.chomper(lead, y, unit * 0.45, DIRS.right, 0.06 + 0.2 * Math.abs(Math.sin(t * 14)), game.colours);
     GLITCH_DEFS.forEach((def, k) => {
       this.glitch(lead - unit * (1.6 + k * 1.1), y, unit * 0.4, def.shape, def.colour, DIRS.right);
     });
   }
+}
+
+/** In the warning window at the end of Overcharge? */
+function overchargeWarning(game) {
+  return game.frightTime > 0 && game.frightTime < game.frightTotal * CONFIG.frightWarn;
+}
+
+/** An actor crossing the wrap seam is drawn at both edges. */
+function wrapCopies(x, cols) {
+  if (x < 0) return [x, x + cols];
+  if (x > cols - 1) return [x, x - cols];
+  return [x];
+}
+
+/** The player character, at pixel coordinates. Exported for the menu preview. */
+export function drawChomper(c, px, py, r, dir, mouth, colours, alpha = 1, outline = false) {
+  if (alpha <= 0) return;
+  c.save();
+  c.globalAlpha = alpha;
+  c.translate(px, py);
+  c.rotate(Math.atan2(dir.y, dir.x));
+  if (dir.x < 0) c.scale(1, -1); // keep the eye on top when facing left
+  c.shadowColor = colours.glow;
+  c.shadowBlur = r * 1.4;
+  c.fillStyle = colours.body;
+  c.beginPath();
+  c.moveTo(0, 0);
+  c.arc(0, 0, r, mouth * Math.PI, TAU - mouth * Math.PI);
+  c.closePath();
+  c.fill();
+  if (outline) {
+    c.shadowColor = '#ffffff';
+    c.shadowBlur = r * 0.6;
+    c.strokeStyle = '#ffffff';
+    c.lineWidth = Math.max(1.5, r * 0.14);
+    c.lineJoin = 'round';
+    c.stroke();
+  }
+  if (mouth < 0.6) {
+    c.shadowBlur = 0;
+    c.fillStyle = PALETTE.pupil;
+    c.beginPath();
+    c.arc(r * 0.12, -r * 0.5, r * 0.13, 0, TAU);
+    c.fill();
+  }
+  c.restore();
 }
 
 function polygon(c, shape, r) {

@@ -11,30 +11,36 @@
 
   <!-- Title-screen menu. The canvas draws the logo and parade above it. -->
   <div id="menu" class="menu" hidden>
+    <button type="button" class="play" id="play">Play <kbd>Enter</kbd></button>
+    <p class="hint">Arrows / WASD move · P pause · Q quit to menu</p>
+
     <section>
-      <h2>Difficulty</h2>
-      <div class="segmented" role="radiogroup" aria-label="Difficulty" id="difficulty"></div>
+      <h2 id="difficulty-label">Difficulty</h2>
+      <div class="segmented" role="radiogroup" aria-labelledby="difficulty-label" id="difficulty"></div>
       <p class="hint" id="difficulty-hint"></p>
     </section>
+    <p class="hint" id="menu-high" hidden></p>
 
-    <section>
-      <h2>Body colour</h2>
-      <div class="swatches" id="body-swatches" role="radiogroup" aria-label="Body colour"></div>
-    </section>
-
-    <section>
-      <h2>
-        Glow colour
-        <label class="toggle"><input type="checkbox" id="glow-match"> match body</label>
-      </h2>
-      <div class="swatches" id="glow-swatches" role="radiogroup" aria-label="Glow colour"></div>
-    </section>
-
-    <p class="warning" id="clash" hidden></p>
-
-    <button type="button" class="play" id="play">Play <kbd>Enter</kbd></button>
-    <p class="hint" id="menu-high"></p>
-    <p class="hint">Arrows / WASD move · P pause · Q quit to menu</p>
+    <details id="customise">
+      <summary>Customise colours <span class="summary-dot" id="summary-dot"></span></summary>
+      <div class="customise">
+        <canvas id="preview" aria-label="Preview of your character"></canvas>
+        <div class="colour-rows">
+          <section>
+            <h2 id="body-label">Body</h2>
+            <div class="swatches" id="body-swatches" role="radiogroup" aria-labelledby="body-label"></div>
+          </section>
+          <section>
+            <h2>
+              <span id="glow-label">Glow</span>
+              <label class="toggle"><input type="checkbox" id="glow-match"> match body</label>
+            </h2>
+            <div class="swatches" id="glow-swatches" role="radiogroup" aria-labelledby="glow-label"></div>
+          </section>
+        </div>
+      </div>
+      <p class="warning" id="clash" hidden></p>
+    </details>
   </div>
 
   <script type="module" src="src/main.js"></script>

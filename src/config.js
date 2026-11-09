@@ -3,7 +3,7 @@
 
 export const CONFIG = {
   lives: 3,
-  readyTime: 2,
+  readyTime: 0.8, // minimum pause before a life starts; then it waits for a direction key
   deathTime: 1.6,
   clearTime: 2,
 
@@ -15,7 +15,7 @@ export const CONFIG = {
   eyesSpeed: 14, // eaten Glitch heading home
 
   frightTime: (level) => Math.max(1.5, 6 - (level - 1) * 0.6),
-  frightWarn: 2, // frightened Glitches flash for the last N seconds
+  frightWarn: 0.25, // frightened Glitches flash for this last fraction of Overcharge
 
   // Glitches alternate between heading for their corner and hunting.
   modes: [
@@ -29,6 +29,7 @@ export const CONFIG = {
   releaseShrink: 1, // each level releases them this much sooner
 
   collideDist: 0.55, // in tiles
+  popupTime: 0.9, // score pop-ups float this long
 
   score: { pellet: 10, power: 50, glitch: 200 },
 };

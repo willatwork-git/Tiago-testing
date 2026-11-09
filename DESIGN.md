@@ -84,7 +84,10 @@ All values are in `DIFFICULTY` in `src/config.js`.
 | Space | Dash |
 | P / Esc | Pause / resume |
 | Q | Quit to menu (while paused, or on game over) |
-| Enter | Play / continue |
+| Enter | Play; on game over, retry with the same settings |
+
+Each life starts when you press a direction you can actually move in. Nothing moves before that,
+so the opening is always the player's choice. Losing window focus pauses the game, READY included.
 
 Touch and gamepad come later.
 

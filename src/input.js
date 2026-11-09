@@ -7,17 +7,20 @@ const DIR_KEYS = {
   ArrowRight: DIRS.right, KeyD: DIRS.right,
 };
 
-const SWALLOW = new Set(['Space', 'Enter']); // stop the page scrolling
+// Keys the game would otherwise lose to page scrolling.
+const SWALLOW = new Set(['Space', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
+
+// Focused form controls keep their own keyboard behaviour (Space toggles,
+// arrows move between radios, Enter clicks). The game ignores those keys.
+const CONTROLS = 'button, input, select, textarea, label, a[href], summary, details';
 
 export function createInput(target = window) {
   let dir = null;
   const pressed = new Set();
 
   target.addEventListener('keydown', (e) => {
-    if (DIR_KEYS[e.code]) {
-      dir = DIR_KEYS[e.code];
-      e.preventDefault();
-    }
+    if (e.target instanceof Element && e.target.closest(CONTROLS)) return;
+    if (DIR_KEYS[e.code]) dir = DIR_KEYS[e.code];
     if (SWALLOW.has(e.code)) e.preventDefault();
     if (!e.repeat) pressed.add(e.code === 'NumpadEnter' ? 'Enter' : e.code);
   });

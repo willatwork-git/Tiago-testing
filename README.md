@@ -24,11 +24,12 @@ Then open **http://localhost:8000** (or the address `npx serve` prints).
 | Arrows / WASD | Move. Press a turn early and it'll take it at the next junction |
 | P or Esc | Pause / resume |
 | Q | Quit to menu (while paused, or on game over) |
-| Enter | Play |
+| Enter | Play. On game over: retry |
 
+- Nothing moves until you press a direction: take your time.
 - Eat every pellet to clear the level. Each level is faster.
-- **Power cells** (the big pulsing dots) turn the Glitches blue. Eat them in a row for
-  200 → 400 → 800 → 1600 points. When they start flashing, back off.
+- **Power cells** (the big pulsing dots) **Overcharge** you: the Glitches turn blue and you can eat
+  them, 200 → 400 → 800 → 1600 in a row. Watch the OVERCHARGE bar; when it flashes, back off.
 - **Normal** or **Hard**: on Hard the Glitches nearly match your speed and rest less.
   Each difficulty has its own high score.
 
@@ -45,8 +46,8 @@ Every so often they all break off and head for their corners. That's your moment
 
 ## Status
 
-Playable. Done: maze, player, all four Glitches, power-ups, lives, levels, high scores, title menu
-with colour picker and difficulty.
+Playable. Done: maze, player, all four Glitches, power-ups with an Overcharge meter, lives, levels,
+high scores, retry, and a keyboard-friendly title menu with colour picker and difficulty.
 
 Coming next: **dash** (Space), **combo multiplier**, particles, screen shake and sound. See
 [TODO.md](TODO.md) for the roadmap and the ideas list.
@@ -58,6 +59,15 @@ The maze is ASCII art in [`src/maze.js`](src/maze.js): `#` wall, `.` pellet, `o`
 Draw your own, as long as every row is the same width.
 
 Add `?play` to the URL to skip the title menu.
+
+### Tests
+
+No dependencies, just Node 22+:
+
+```sh
+node tests/sim.mjs     # game logic, headless
+node tests/e2e.mjs     # drives real Chrome; start the server on port 8765 first
+```
 
 ## Project docs
 
@@ -85,4 +95,7 @@ src/
   ui.js         title menu, colour picker
   input.js      keyboard
   storage.js    saved settings and high scores
+tests/
+  sim.mjs       headless logic simulation
+  e2e.mjs       browser checks (keyboard, menu, states)
 ```

@@ -2,6 +2,42 @@
 
 Newest at the top.
 
+## 2026-11-09 — M5b review fixes
+
+- **Menu keyboard:** game input now ignores keys aimed at focused form controls. Difficulty and
+  swatches are native radios, so arrows, Space and Tab work. Glow controls are truly `disabled`
+  when matched. Play has focus on entry and on return to the menu.
+- **Menu layout:** Play and the controls hint come first, then difficulty. Colours sit under a
+  collapsible "Customise colours" with a fixed 72 px preview. Short screens get a compact
+  layout; at 844 × 390 everything fits.
+- **Start on first input:** a 0.8 s READY, then a prompt under the player. The life starts on the
+  first direction you can actually move in.
+- **Pause:** works from READY as well as play, and resumes to whichever was paused. Blur and
+  hiding the tab both pause.
+- **Tunnel seam:** collision measures the wrapped distance; actors crossing the edge are drawn
+  on both sides.
+- **Overcharge:** a HUD bar plus a white outline on the player. The warning flash is the last
+  25% of the time, on both the bar and the Glitches.
+- **Score pop-ups** when you eat a Glitch. **Retry** on game over (Enter); Q goes to the menu.
+  "LEVEL n CLEARED" during the clear flash. The player is hidden on the game-over screen.
+- **Best score** is saved on `pagehide` and when the tab is hidden.
+- **Bug found by the new e2e test and fixed:** changing difficulty called `menu.show()`, which
+  pulled focus back to Play, so a second arrow key did nothing.
+- **Added `tests/`:** `sim.mjs` (logic) and `e2e.mjs` (26 browser checks covering every review
+  item). Both pass.
+- **Not yet verified by hand:** how it feels to play.
+
+## 2026-11-09 — Triage of ChatGPT review
+
+- Checked each claim in `feedback/README.md` against the code. Confirmed four bugs:
+  - the menu keyboard is swallowed by game input
+  - the tunnel seam misses collisions
+  - window blur during READY doesn't pause
+  - the best score isn't saved if you refresh mid-run
+- Kept six design changes, as milestone M5b in `TODO.md`. Declined four (reasons in `MEMORY.md`).
+  Moved the review's playtest questions under M7.
+- Reordered M6: dash, sound (with mute), particles, combo last.
+
 ## 2026-11-09 — Ready for a public repo
 
 - Added `.gitignore`: macOS files, iCloud conflict copies (`* 2.*`), editor folders, local Claude

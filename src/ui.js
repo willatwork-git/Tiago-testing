@@ -1,9 +1,10 @@
-// Title-screen menu: difficulty and player colours. DOM, not canvas,
-// so the native colour picker and keyboard focus come for free.
+// Title-screen menu: Play, difficulty and player colours. Real HTML form controls,
+// so keyboard use (Tab, arrows between radios, Space, Enter) works natively.
 
 import { GLITCH_DEFS } from './glitches.js';
-import { PALETTE } from './render.js';
+import { PALETTE, drawChomper } from './render.js';
 import { DIFFICULTY } from './config.js';
+import { DIRS } from './maze.js';
 
 // Chosen to stay clear of every Glitch, frightened blue and the walls (RGB distance ≥ 77).
 export const PRESETS = [
@@ -18,7 +19,7 @@ export const PRESETS = [
 ];
 
 const LOOKALIKES = [
-  ...GLITCH_DEFS.map((d) => ({ name: `${d.name}`, hex: d.colour })),
+  ...GLITCH_DEFS.map((d) => ({ name: d.name, hex: d.colour })),
   { name: 'frightened Glitches', hex: PALETTE.fright },
   { name: 'the walls', hex: PALETTE.wall },
   { name: 'flashing Glitches', hex: PALETTE.frightFlash },
@@ -38,68 +39,78 @@ export function colourWarning(hex) {
   return near ? `That colour is close to ${near.name} — you may lose track of yourself.` : null;
 }
 
-export function createMenu({ colours, difficulty, onColours, onDifficulty, onPlay }) {
-  const root = document.getElementById('menu');
-  const diffBox = document.getElementById('difficulty');
-  const diffHint = document.getElementById('difficulty-hint');
-  const bodyBox = document.getElementById('body-swatches');
-  const glowBox = document.getElementById('glow-swatches');
-  const match = document.getElementById('glow-match');
-  const clash = document.getElementById('clash');
-  const high = document.getElementById('menu-high');
+const $ = (id) => document.getElementById(id);
 
-  // --- difficulty ---
-  const diffButtons = Object.entries(DIFFICULTY).map(([key, d]) => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.setAttribute('role', 'radio');
-    b.textContent = d.label;
-    b.addEventListener('click', () => {
+function radio(name, value, label) {
+  const input = document.createElement('input');
+  input.type = 'radio';
+  input.name = name;
+  input.value = value;
+  if (label) input.setAttribute('aria-label', label);
+  return input;
+}
+
+export function createMenu({ colours, difficulty, onColours, onDifficulty, onPlay }) {
+  const root = $('menu');
+  const play = $('play');
+  const match = $('glow-match');
+  const clash = $('clash');
+  const high = $('menu-high');
+  const dot = $('summary-dot');
+  const preview = $('preview');
+
+  // --- difficulty: segmented control built from native radios ---
+  const diffRadios = Object.entries(DIFFICULTY).map(([key, d]) => {
+    const label = document.createElement('label');
+    const input = radio('difficulty', key);
+    input.addEventListener('change', () => {
+      if (!input.checked) return;
       difficulty = key;
       renderDifficulty();
       onDifficulty(key);
     });
-    diffBox.append(b);
-    return [key, b];
+    const text = document.createElement('span');
+    text.textContent = d.label;
+    label.append(input, text);
+    $('difficulty').append(label);
+    return input;
   });
 
   function renderDifficulty() {
-    for (const [key, b] of diffButtons) b.setAttribute('aria-checked', String(key === difficulty));
-    diffHint.textContent = DIFFICULTY[difficulty].hint;
+    for (const r of diffRadios) r.checked = r.value === difficulty;
+    $('difficulty-hint').textContent = DIFFICULTY[difficulty].hint;
   }
 
-  // --- colours ---
+  // --- colours: a row of preset radios plus a custom colour input ---
   function swatchRow(box, slot) {
-    const buttons = PRESETS.map((p) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'swatch';
-      b.setAttribute('role', 'radio');
-      b.setAttribute('aria-label', p.name);
-      b.title = p.name;
-      b.style.background = p.hex;
-      b.style.color = p.hex;
-      b.addEventListener('click', () => setColour(slot, p.hex, true));
-      box.append(b);
-      return [p.hex, b];
+    const radios = PRESETS.map((p) => {
+      const label = document.createElement('label');
+      label.className = 'swatch';
+      label.title = p.name;
+      label.style.setProperty('--c', p.hex);
+      const input = radio(slot, p.hex, p.name);
+      input.addEventListener('change', () => input.checked && setColour(slot, p.hex, true));
+      label.append(input);
+      box.append(label);
+      return input;
     });
     const label = document.createElement('label');
     label.className = 'swatch custom';
     label.title = 'Custom colour';
-    const input = document.createElement('input');
-    input.type = 'color';
-    input.setAttribute('aria-label', `Custom ${slot} colour`);
-    input.addEventListener('input', () => setColour(slot, input.value, false)); // live while dragging
-    input.addEventListener('change', () => setColour(slot, input.value, true));
-    label.append(input);
+    const custom = document.createElement('input');
+    custom.type = 'color';
+    custom.setAttribute('aria-label', `Custom ${slot} colour`);
+    custom.addEventListener('input', () => setColour(slot, custom.value, false)); // live while dragging
+    custom.addEventListener('change', () => setColour(slot, custom.value, true));
+    label.append(custom);
     box.append(label);
-    return { buttons, label, input };
+    return { radios, label, custom, box };
   }
 
-  const rows = { body: swatchRow(bodyBox, 'body'), glow: swatchRow(glowBox, 'glow') };
+  const rows = { body: swatchRow($('body-swatches'), 'body'), glow: swatchRow($('glow-swatches'), 'glow') };
 
   function setColour(slot, hex, save) {
-    colours = { ...colours, [slot]: hex };
+    colours = { ...colours, [slot]: hex.toLowerCase() };
     if (colours.matchGlow) colours.glow = colours.body;
     renderColours();
     onColours(colours, save);
@@ -114,40 +125,63 @@ export function createMenu({ colours, difficulty, onColours, onDifficulty, onPla
 
   function renderColours() {
     for (const slot of ['body', 'glow']) {
-      const { buttons, label, input } = rows[slot];
+      const { radios, label, custom, box } = rows[slot];
       const current = colours[slot].toLowerCase();
       let preset = false;
-      for (const [hex, b] of buttons) {
-        const on = hex === current;
-        preset ||= on;
-        b.setAttribute('aria-checked', String(on));
+      for (const r of radios) {
+        r.checked = r.value === current;
+        preset ||= r.checked;
       }
-      label.setAttribute('aria-checked', String(!preset));
-      if (!preset) label.style.color = current;
-      input.value = current;
+      label.classList.toggle('selected', !preset);
+      if (!preset) label.style.setProperty('--c', current);
+      custom.value = current;
     }
+    // Matching glow: its controls are genuinely disabled, so they leave the tab order.
     match.checked = colours.matchGlow;
-    glowBox.classList.toggle('disabled', colours.matchGlow);
+    rows.glow.box.classList.toggle('disabled', colours.matchGlow);
+    for (const el of [...rows.glow.radios, rows.glow.custom]) el.disabled = colours.matchGlow;
+
+    dot.style.setProperty('--c', colours.body);
+    dot.style.setProperty('--g', colours.glow);
+    drawPreview();
 
     const warning = colourWarning(colours.body);
     clash.hidden = !warning;
     clash.textContent = warning ?? '';
   }
 
-  document.getElementById('play').addEventListener('click', onPlay);
+  // Stationary preview, so body and glow can be compared without waiting for the parade.
+  function drawPreview() {
+    const size = 72;
+    const dpr = window.devicePixelRatio || 1;
+    preview.width = size * dpr;
+    preview.height = size * dpr;
+    const c = preview.getContext('2d');
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.clearRect(0, 0, size, size);
+    drawChomper(c, size / 2, size / 2, size * 0.3, DIRS.right, 0.2, colours);
+  }
+
+  play.addEventListener('click', onPlay);
 
   renderDifficulty();
   renderColours();
 
+  function setHigh(highScore) {
+    high.textContent = `High score (${DIFFICULTY[difficulty].label}): ${highScore}`;
+    high.hidden = !(highScore > 0);
+  }
+
   return {
+    setHigh,
     show(highScore) {
-      high.textContent = `High score (${DIFFICULTY[difficulty].label}): ${highScore}`;
-      high.hidden = !(highScore > 0);
+      setHigh(highScore);
       root.hidden = false;
+      play.focus({ preventScroll: true }); // Enter or Space starts straight away
     },
     hide() {
       root.hidden = true;
-      // Drop focus so Space/Enter in-game don't re-click a menu button.
+      // Drop focus so in-game keys go to the game, not a hidden button.
       if (root.contains(document.activeElement)) document.activeElement.blur();
     },
   };
