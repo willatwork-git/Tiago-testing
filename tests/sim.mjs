@@ -1,10 +1,10 @@
 // Headless logic checks: maze reachability, no dead ends, and 20 × 90 s simulated runs
 // (random player, both difficulties) to confirm Glitches leave and return home and
 // nobody ever ends up inside a wall.   node tests/sim.mjs
-import { Maze, DIR_LIST } from '../src/maze.js';
-import { Player } from '../src/player.js';
-import { createGlitches } from '../src/glitches.js';
-import { CONFIG, DIFFICULTY } from '../src/config.js';
+import { Maze, DIR_LIST } from '../src/chomp/maze.js';
+import { Player } from '../src/chomp/player.js';
+import { createGlitches } from '../src/chomp/glitches.js';
+import { CONFIG, DIFFICULTY } from '../src/chomp/config.js';
 let fails = 0; const check = (ok, msg) => { if (!ok) { fails++; console.log('FAIL', msg); } };
 
 const m = new Maze();

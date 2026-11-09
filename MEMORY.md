@@ -32,3 +32,10 @@ Durable decisions, with the reason. Newest at the bottom.
 | 2026-11-09 | Game logic emits events; audio and fx subscribe | Rules stay testable headless; sound and effects can change freely |
 | 2026-11-09 | Combo parked until dash is playtested | The review's concern: a combo could punish evasive play |
 | 2026-11-09 | Respect OS "reduce motion": no shake, fewer particles | Cheap accessibility win |
+| 2026-11-09 | Project becomes **Neon Arcade**: a home screen plus games as separate pages (`chomp/`, `brawler/`) | Each game starts clean; a bug in one can't break the other; no need to refactor Chomp's single-module loop |
+| 2026-11-09 | Second game: **Nebula Knockout**, a tag-team beat 'em up. Mechanics drawn from Marvel Cosmic Invasion (tag team, cosmic invaders) and Shredder's Revenge (retro look, modern feel) | The kids like Cosmic Invasion. Mechanics only; characters, names and art are original |
+| 2026-11-09 | Brawler renders at 480×270 with whole-step pixel scaling; the HUD is drawn at full resolution | Retro pixels, modern crisp UI |
+| 2026-11-09 | Characters are a code-drawn rig (two-segment limbs + poses), not sprites | Keeps the no-assets rule; one rig serves every fighter |
+| 2026-11-09 | Brawler game logic has no DOM access | A headless bot can play the stage in tests |
+| 2026-11-09 | Rule of two for shared code; only the sound synth is shared so far | Avoid guessing an "engine" before two games need it |
+| 2026-11-09 | Windows app paused; Tauri preferred when it resumes | Get both games solid first |

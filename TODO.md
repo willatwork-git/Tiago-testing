@@ -1,6 +1,15 @@
 # TODO
 
-## Now — v1 (playable, polished, one maze)
+## Arcade
+
+### A1 Home screen + restructure
+- [x] Move Neon Chomp into `chomp/` + `src/chomp/`; arcade home at `index.html`
+- [x] Shared sound synth in `src/shared/audio.js`; each game keeps its own sound list
+- [x] "← Arcade" link in each game's menu; Q from pause/game over goes back
+- [x] Home shows each game's best score
+- [x] Tests follow the move; add home + brawler tests
+
+## Neon Chomp — v1 (playable, polished, one maze)
 
 ### M1 Skeleton
 - [x] `index.html`, `style.css`, canvas scaled to window (crisp at any DPI)
@@ -79,8 +88,45 @@ fight the evasive play dash is for, so see if dash is fun on its own first.*
   - wall glow drawing the eye ahead of the actors on a full board
   - single remaining pellets that are hard to spot
 
-## Later — cool future ideas
+## Nebula Knockout — brawler
 
+### B1 Prototype
+- [x] 480 × 270 world, whole-step pixel scaling, full-resolution HUD
+- [x] Stage: parallax starfield + planet, station silhouettes, neon grid floor
+- [x] Code-drawn rig with poses: idle, walk, jab, kick, heavy, jump, jump attack, hurt, knockdown, special
+- [x] Heroes Nova + Titan; tag on Space with tag-in strike; benched hero regenerates; auto-swap on KO
+- [x] Combo (buffered), jump + jump attack, specials (Star Dash, Comet Beam)
+- [x] Hitstop, knockback, knockdown, hit sparks, smears, screen shake
+- [x] Enemies Voidling + Brute: telegraphed wind-ups, max 2 attacking at once (tokens)
+- [x] Stage 1: three wave zones, camera lock, GO →, stage clear
+- [x] HUD: both heroes' health, tag cooldown, score; title, pause, game over, retry
+- [x] Sounds (shared synth)
+- [x] Tests: a headless bot clears the stage; e2e covers controls and states
+
+### B2 Next *(now)*
+- [ ] **Playtest B1 with the kids**: what's fun, what's confusing, too easy or too hard? (The test
+  bot clears stage 1 every run, so it's probably gentle.)
+- [ ] Health pickups + breakable crates
+- [ ] Boss at the end of stage 1
+- [ ] Ranged enemy (forces movement)
+- [ ] Grab + throw
+- [ ] Hero select (pick your two from a roster of 3–4)
+- [ ] Hero colour picker (shared idea with Neon Chomp)
+- [ ] Two-player co-op (each player one hero, or tag pairs)
+- [ ] Gamepad support (both games)
+- [ ] More stages
+
+## Later
+
+### Windows app — *paused 2026-11-09*
+Resume once both games are solid. Preferred wrapper: **Tauri** (small installer, uses Windows'
+WebView2). Use Electron only if Steam becomes the target. A PWA is the zero-effort interim.
+- Decisions needed: audience (friends / Microsoft Store / Steam), code signing, final names +
+  icons + licence, auto-updates, controller support
+- Prep: gamepad, fullscreen toggle, Quit button, version number, hide dev aids, GitHub Actions
+  Windows build
+
+### Neon Chomp ideas
 - **Touch controls** — swipe, plus an on-screen dash button; playable on phone
 - **Gamepad support** (Gamepad API)
 - **Procedural mazes** — a new layout every level, generated symmetrically
@@ -95,4 +141,9 @@ fight the evasive play dash is for, so see if dash is fun on its own first.*
 - **Accessibility** — colour-blind mode, reduced motion (no shake/flash), adjustable game speed
 - **PWA** — installable, works offline
 - **Online leaderboard**
-- **Deploy to GitHub Pages**
+
+
+### Arcade ideas
+- **Deploy to GitHub Pages** so friends can play from a link
+- **Shared player profile**: one name and colour scheme across all games
+- **Third game**: TBD

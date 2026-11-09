@@ -1,42 +1,16 @@
-// End-to-end checks in real (headless) Chrome via the DevTools Protocol:
-// real keyboard events, real layout. No dependencies — Node 22+ (global WebSocket).
+// Neon Chomp end-to-end checks in real (headless) Chrome: keyboard, menu, states, collisions.
 //
 //   python3 -m http.server 8765          # in the project root, in another terminal
 //   node tests/e2e.mjs [screenshot-dir]
 //
-// Env: CHROME (path to Chrome), URL (default http://localhost:8765/).
-import { spawn } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-const CH = process.env.CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-const URL = process.env.URL ?? 'http://localhost:8765/';
-const OUT = process.argv[2] ?? mkdtempSync(join(tmpdir(), 'neon-chomp-e2e-'));
-const chrome = spawn(CH, ['--headless=new', '--remote-debugging-port=9333', `--user-data-dir=${OUT}/profile`,
-  '--window-size=900,900', 'about:blank'], { stdio: 'ignore' });
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-let ws, id = 0; const pending = new Map();
-for (let i = 0; i < 50; i++) { try { const t = await (await fetch('http://127.0.0.1:9333/json')).json(); const pg = t.find(x => x.type === 'page'); if (pg) { ws = new WebSocket(pg.webSocketDebuggerUrl); break; } } catch {} await sleep(200); }
-await new Promise((r) => ws.addEventListener('open', r));
-const pageErrors = [];
-ws.addEventListener('message', (m) => { const d = JSON.parse(m.data); if (d.method === 'Runtime.exceptionThrown') { const e = d.params.exceptionDetails; pageErrors.push(`${e.exception?.description ?? e.text} @${e.url?.split('/').pop()}:${e.lineNumber + 1}`); } if (d.id && pending.has(d.id)) { pending.get(d.id)(d); pending.delete(d.id); } });
-const send = (method, params = {}) => new Promise((r) => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
-const ev = async (expr) => { const r = await send('Runtime.evaluate', { expression: expr, returnByValue: true, awaitPromise: true }); if (r.result.exceptionDetails) throw new Error(JSON.stringify(r.result.exceptionDetails)); return r.result.result.value; };
-const KEYS = { Enter: [13, '\r'], Space: [32, ' '], Tab: [9, ''], ArrowLeft: [37], ArrowRight: [39], ArrowUp: [38], ArrowDown: [40], KeyP: [80, 'p'], KeyQ: [81, 'q'], KeyM: [77, 'm'] };
-async function key(code, shift = false) {
-  const [kc, text] = KEYS[code]; const k = code === 'Space' ? ' ' : code.startsWith('Key') ? code.slice(3).toLowerCase() : code;
-  await send('Input.dispatchKeyEvent', { type: text ? 'keyDown' : 'rawKeyDown', code, key: k, windowsVirtualKeyCode: kc, text, modifiers: shift ? 8 : 0 });
-  await send('Input.dispatchKeyEvent', { type: 'keyUp', code, key: k, windowsVirtualKeyCode: kc, modifiers: shift ? 8 : 0 });
-  await sleep(60);
-}
-async function viewport(w, h) { await send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: false }); }
-async function shot(name) { const r = await send('Page.captureScreenshot'); (await import('node:fs')).writeFileSync(`${OUT}/${name}.png`, Buffer.from(r.result.data, 'base64')); }
-let fails = 0; const check = (ok, msg) => { console.log(ok ? 'PASS' : 'FAIL', msg); if (!ok) fails++; };
-/** Poll a page expression until truthy (or time out) — frames don't tick on a fixed schedule headless. */
-const waitFor = async (expr, ms = 1000) => { const end = Date.now() + ms; while (Date.now() < end) { if (await ev(expr)) return true; await sleep(20); } return false; };
-const load = async (q = '?debug') => { await send('Page.navigate', { url: URL + q }); await sleep(800); };
+// Env: CHROME (path to Chrome), URL (default http://localhost:8765/chomp/).
+import { openBrowser, sleep } from './cdp.mjs';
 
-await send('Page.enable'); await send('Runtime.enable');
+const URL = process.env.URL ?? 'http://localhost:8765/chomp/';
+const b = await openBrowser({ out: process.argv[2], name: 'chomp' });
+const { send, ev, key, viewport, shot, check, waitFor } = b;
+const load = (q = '?debug') => b.load(URL + q);
+
 await viewport(900, 900);
 await load(); await ev('localStorage.clear()'); await load();
 
@@ -151,7 +125,4 @@ check(await ev('game.state') === 'ready' && await ev('game.lives') === 3, 'Enter
 await ev('window.dispatchEvent(new Event("blur"))'); await key('KeyQ');
 check(await ev('game.state') === 'title' && await ev('document.activeElement.id') === 'play', 'Q from pause → menu, Play focused');
 
-check(pageErrors.length === 0, `no uncaught page errors${pageErrors.length ? ': ' + [...new Set(pageErrors)].join(' | ') : ''}`);
-console.log(fails ? `${fails} FAILED` : 'ALL PASS', `(screenshots in ${OUT})`);
-process.exitCode = fails ? 1 : 0;
-ws.close(); chrome.kill();
+b.finish();

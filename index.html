@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neon Arcade</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="home">
+  <main class="arcade">
+    <header>
+      <h1>NEON ARCADE</h1>
+      <p class="hint">Pick a game. Arrow keys or Tab to choose, Enter to play.</p>
+    </header>
+
+    <nav class="cards" aria-label="Games">
+      <a class="card" href="chomp/" id="card-chomp" style="--accent: #7cff4f">
+        <canvas class="preview" id="preview-chomp" aria-hidden="true"></canvas>
+        <span class="card-title">Neon Chomp</span>
+        <span class="card-genre">Maze chase</span>
+        <span class="card-blurb">Clear the maze, dodge four Glitches, Overcharge and bite back.</span>
+        <span class="card-best" id="best-chomp"></span>
+      </a>
+      <a class="card" href="brawler/" id="card-brawler" style="--accent: #ff5fd2">
+        <canvas class="preview" id="preview-brawler" aria-hidden="true"></canvas>
+        <span class="card-title">Nebula Knockout</span>
+        <span class="card-genre">Tag-team brawler</span>
+        <span class="card-blurb">Two heroes, one button to swap. Punch the Voidling invasion back into space.</span>
+        <span class="card-best" id="best-brawler"></span>
+      </a>
+    </nav>
+  </main>
+  <script type="module" src="src/home.js"></script>
+</body>
+</html>

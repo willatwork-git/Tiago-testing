@@ -1,23 +1,8 @@
-// localStorage, wrapped so a private window or blocked storage never breaks the game.
+// Neon Chomp's saved settings and scores (on the shared localStorage wrapper).
 
-const PREFIX = 'neonChomp.';
+import { createStore } from '../shared/store.js';
 
-function read(key, fallback) {
-  try {
-    const raw = localStorage.getItem(PREFIX + key);
-    return raw === null ? fallback : JSON.parse(raw);
-  } catch {
-    return fallback;
-  }
-}
-
-function write(key, value) {
-  try {
-    localStorage.setItem(PREFIX + key, JSON.stringify(value));
-  } catch {
-    // Storage unavailable — the game still works, it just won't remember.
-  }
-}
+const { read, write } = createStore('neonChomp.');
 
 export const DEFAULT_COLOURS = { body: '#7cff4f', glow: '#7cff4f', matchGlow: true };
 const HEX = /^#[0-9a-f]{6}$/i;

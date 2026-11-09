@@ -2,6 +2,37 @@
 
 Newest at the top.
 
+## 2026-11-09 — Neon Arcade: home screen + Nebula Knockout prototype
+
+- **Docs first:**
+  - the project is now the **Neon Arcade**; `DESIGN.md` covers the arcade
+  - Neon Chomp's design moved to `DESIGN-CHOMP.md`
+  - new `DESIGN-BRAWLER.md`, with what we take from Marvel Cosmic Invasion, Shredder's Revenge,
+    Streets of Rage 4 and Final Fight (mechanics only)
+  - TODO restructured per game; Windows app paused under Later
+  - CLAUDE.md rewritten for two games
+- **Restructure:** Neon Chomp moved to `chomp/` + `src/chomp/` (git history kept). The sound synth
+  and the saved-settings wrapper moved to `src/shared/`. Chomp's menu has a "← Arcade" link.
+- **Home screen** (`index.html`, `src/home.js`): two cards with animated previews and best scores;
+  arrow keys move between them.
+- **Nebula Knockout B1** (`brawler/`, `src/brawler/`):
+  - heroes Nova and Titan, with tag swaps
+  - combos, jump attacks, Star Dash and Comet Beam
+  - Voidlings and Brutes, with visible wind-ups and at most 2 attacking at once
+  - three wave zones with camera locks and GO →
+  - hitstop, sparks and shake; the HUD, title, pause, game over, stage clear and sound
+  - drawn at 480 × 270 and scaled up as crisp pixels
+- **Tests:**
+  - `tests/brawler-sim.mjs`: a bot plays stage 1. God mode must clear it; honest runs report a
+    clear rate (8/8, so it's gentle).
+  - `tests/brawler-e2e.mjs`: 33 checks across the home screen, controls, tag, beam, pause,
+    mute, game over, retry, stage clear and back to the arcade.
+  - The Chrome driver was extracted to `tests/cdp.mjs`, and `e2e.mjs` now uses it.
+  - All four suites pass.
+- **Bug found by the bot test and fixed:** waiting enemies hovered off-screen at the stage's left
+  edge, so they could never be reached and the stage never ended.
+- **Not verified by hand:** how the fighting *feels*. That's the kids' playtest (B2).
+
 ## 2026-11-09 — M6: dash, sound, effects
 
 - Committed M5/M5b as `3fd49fe`.

@@ -98,7 +98,7 @@ Chosen on the title menu. It's remembered between visits, and each difficulty ke
 | Time before Glitches leave the house | full | ×0.4 |
 | Scatter (breather) phases | full | ×0.5 |
 
-All values are in `DIFFICULTY` in `src/config.js`.
+All values are in `DIFFICULTY` in `src/chomp/config.js`.
 
 ## Controls
 
@@ -126,23 +126,23 @@ Touch and gamepad come later.
   empty), which makes them easy to edit by hand.
 - Game state machine: `title → playing → paused → levelClear → dying → gameOver`.
 
-### File layout (planned)
+### File layout
 
 ```
-index.html
-style.css
-src/
-  main.js        boot, loop, state machine
-  config.js      every tunable number (speeds, timers, scores)
-  entity.js      shared tile-to-tile movement (Mover)
-  input.js       keyboard + buffering
-  maze.js        layouts, parsing, tile queries
+chomp/index.html     page + title menu markup
+src/chomp/
+  main.js            boot, loop, state machine
+  config.js          every tunable number (speeds, timers, scores)
+  entity.js          shared tile-to-tile movement (Mover)
+  input.js           keyboard + buffering
+  maze.js            layouts, parsing, tile queries
   player.js
-  glitches.js    enemy AI + modes
-  render.js      drawing, glow, particles, shake
-  audio.js       Web Audio blips
-  ui.js          title screen, colour picker, HUD
-  storage.js     localStorage (colours, high score)
+  glitches.js        enemy AI + modes
+  render.js          drawing, glow, HUD, overlays
+  fx.js              particles, screen shake
+  audio.js           Neon Chomp's sound set (on the shared synth)
+  ui.js              title menu, colour picker
+  storage.js         localStorage (colours, difficulty, high scores, mute)
 ```
 
 ## Out of scope for v1
