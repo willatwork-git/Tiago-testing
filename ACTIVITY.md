@@ -2,6 +2,37 @@
 
 Newest at the top.
 
+## 2026-11-18 — Nine games chosen; fast-start sources found
+
+- **Picked by Will:** Tetris, Bubble Shooter, Pong, Gun Fight, Breakout, Space Invaders, Galaxian,
+  Snake, Asteroids.
+- **Searched GitHub for permissively licensed versions** where the registered repos had none.
+  Added to `REFERENCES.md`:
+  - dmcinnes/HTML5-Asteroids (MIT)
+  - gregfrazier/gakaga (MIT, Galaga-style)
+  - vruntime-labs/ping-pong (MIT)
+
+  No licensed Gun Fight exists; it will be built fresh.
+- **`GAME-CANDIDATES.md` → "Chosen line-up":** our working titles, a source per game, effort, and
+  build order (Rally first, Block Drop last).
+- **TODO:** A2 new-game kit (shared shell, template, two-pad support) before A3, the nine games.
+
+## 2026-11-18 — Registered external game repos; game candidate list
+
+- **Checked four suggested repos on GitHub** (contents and licences) and registered them in the
+  new `REFERENCES.md`:
+  - Softwarebydefault: Apache-2.0, reusable
+  - ShawTim: MIT in the README only
+  - juliensimon: no licence, reference only
+  - Sd-Jerry: no licence, Mario IP, not useful
+- **The suggestion text was partly wrong:** juliensimon has 12 games, not 7, and JS-Arcade is two
+  small pages, not a React hub.
+- **New `GAME-CANDIDATES.md`:** every game we could add, with an original working title, twist,
+  look, licence status, effort and kid appeal. Recommended shortlist: Brickstorm (brick
+  breaker), Pop Reef (bubble shooter), Snowball Showdown (two-player duel).
+- **TODO:** two-pad controller support (needed for two-player games); choose the next game.
+- **No code copied yet,** so no `THIRD_PARTY_NOTICES.md` yet.
+
 ## 2026-11-09 — Razorfin character-art pass
 
 - **Own renderer:** new `src/brawler/razorfin.js`, with the shared cel-shading helpers moved to

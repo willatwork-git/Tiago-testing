@@ -55,3 +55,7 @@ Durable decisions, with the reason. Newest at the bottom.
 | 2026-11-09 | Razorfin gets his own renderer (`src/brawler/razorfin.js`), drawn in three-quarter view; shared paint helpers moved to `src/brawler/paint.js` | Pure profile turned his bulk into a blob; brawler sprites and the concept are three-quarter |
 | 2026-11-09 | Character art passes are presentation only; proportions live in drawing code, never in `def.scale` | `def.scale` feeds reach and collision; art must not change gameplay |
 | 2026-11-09 | Moves can have `windPose` (startup), `pose` (active) and `followPose` (recovery) | Gives heavy attacks three readable beats |
+| 2026-11-18 | External game repos are registered in `REFERENCES.md` with their licence status; only Apache-2.0 / MIT code may be copied (with `THIRD_PARTY_NOTICES.md`), unlicensed repos are reference only | The repo is public; unlicensed code is all rights reserved |
+| 2026-11-18 | Borrowed games still follow the originality rule: new names, characters and looks; falling-block games must be genuinely different from Tetris | Licensed code doesn't license the classic's trademark or look |
+| 2026-11-18 | Nine more games chosen: Pong, Snake, Breakout, Space Invaders, Galaxian, Asteroids, Bubble Shooter, Gun Fight, Tetris, each as our own titled version | Will's pick; build order in GAME-CANDIDATES.md |
+| 2026-11-18 | Build a shared game shell + new-game template before the nine | The loop/state/hint code is already duplicated in two games (rule of two); nine more would multiply it |

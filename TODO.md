@@ -172,4 +172,18 @@ WebView2). Use Electron only if Steam becomes the target. A PWA is the zero-effo
 - [x] README "Getting started" for the public repo: clone or ZIP, a server on macOS/Windows/Node/VS Code, troubleshooting
 - **Turn on GitHub Pages** (Settings → Pages → `main`, root) so friends can play from a link; the steps are in the README
 - **Shared player profile**: one name and colour scheme across all games
-- **Third game**: TBD
+- **More games**: candidates and a recommended shortlist are in `GAME-CANDIDATES.md` (Brickstorm, Pop Reef, Snowball Showdown first); reference repos and their licences in `REFERENCES.md`
+- [ ] Controller module: support **two pads** (needed for two-player games like Snowball Showdown and Rally)
+- [x] Decide the next games: nine chosen (see `GAME-CANDIDATES.md` → Chosen line-up)
+
+### A2 New-game kit *(next)*
+- [ ] Extract the shared game shell both current games duplicate (fixed-step loop, title / play /
+  pause / game-over states, hints for keyboard vs controller, blur-pause, best-score save)
+- [ ] A new-game template: page, home-screen card, `?debug`, sim + e2e test stubs
+- [ ] Two-pad support in `src/shared/gamepad.js`
+
+### A3 The nine *(in build order)*
+- [ ] Rally (Pong) · [ ] Noodle (Snake) · [ ] Brickstorm (Breakout) · [ ] Sky Patrol (Space Invaders)
+- [ ] Sky Patrol: Swarm (Galaxian) · [ ] Drift Belt (Asteroids) · [ ] Pop Reef (Bubble Shooter)
+- [ ] Snowball Showdown (Gun Fight) · [ ] Block Drop (falling blocks, after a design/legal check)
+- [ ] Home screen layout for 11 games (grid, scrolling, pad navigation)

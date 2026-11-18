@@ -181,6 +181,8 @@ environment variable, e.g. `CHROME=/usr/bin/google-chrome node tests/e2e.mjs`.
 | [DESIGN.md](DESIGN.md) | The arcade: shared goals, structure, how code is shared |
 | [DESIGN-CHOMP.md](DESIGN-CHOMP.md) | Neon Chomp design |
 | [DESIGN-BRAWLER.md](DESIGN-BRAWLER.md) | Borough Brawl design, what it borrows from which games, and how the shark concept became a sprite |
+| [GAME-CANDIDATES.md](GAME-CANDIDATES.md) | Games we could add next, with a recommended shortlist |
+| [REFERENCES.md](REFERENCES.md) | External game repos we learn from, and what their licences allow |
 | [TODO.md](TODO.md) | Roadmap per game, plus ideas |
 | [ACTIVITY.md](ACTIVITY.md) | Dev log |
 | [MEMORY.md](MEMORY.md) | Decisions made, and why |

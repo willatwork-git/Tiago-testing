@@ -10,7 +10,7 @@ its own look. v0.2, 2026-11-09.*
 | **Neon Chomp** | Maze-chase | v1 built; needs playtest + tuning | [DESIGN-CHOMP.md](DESIGN-CHOMP.md) |
 | **Borough Brawl** | Side-scrolling tag-team street brawler (New York) | Prototype (B1 + B1.5) | [DESIGN-BRAWLER.md](DESIGN-BRAWLER.md) |
 
-Both names are working titles.
+Both names are working titles. Possible next games are in [GAME-CANDIDATES.md](GAME-CANDIDATES.md).
 
 ## Shared goals
 

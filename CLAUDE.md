@@ -12,6 +12,9 @@ This is a build project: read source properly, run it, and test changes in the b
 - `DESIGN-CHOMP.md`, `DESIGN-BRAWLER.md` — each game's design. They're the source of truth for scope.
 - `TODO.md` — current milestones per game. Work top-down; tick items off as they land.
 - `MEMORY.md` — decisions already made. Don't re-litigate them.
+- `GAME-CANDIDATES.md`, `REFERENCES.md` — possible new games, and the external repos we may
+  learn from. **Check a repo's licence in REFERENCES.md before copying any code.** Unlicensed code
+  is reference only; copied code needs `THIRD_PARTY_NOTICES.md`.
 
 ## Run
 
